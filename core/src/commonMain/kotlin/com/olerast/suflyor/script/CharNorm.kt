@@ -27,8 +27,10 @@ class CharNorm private constructor(
 
     // Kotlin/Native has no \p{IsHan}/\p{IsHangul} and no && intersections, so the scripts are spelled out as ranges
     // (the same ones as UnicodeScripts; a jvmTest compares this regex with the original Java one on every code point).
-    // VERIFY: on iosSimulatorArm64 (CjkHebrewTest) check that Kotlin/Native reads the surrogate pairs in the class as one
-    // code point and supports the lookahead; the JVM parity test cannot show it.
+    // Checked on iosSimulatorArm64: the lookahead works, but Kotlin/Native's engine matches no supplementary code point in
+    // a class (raw pair, \x{} and \p{IsHan} all fail), so U+20000.. is not a unit there. Java matches it and normalizeWord
+    // drops it anyway (a lone surrogate is no letter), so words() is the same (PortabilityShimTest). Only a supplementary
+    // letter inside a Latin run (e.g. math bold A) splits the run on iOS but not on the JVM.
     override val wordRegex: Regex = Regex(
         when (script) {
             UScript.HAN -> unitOrRun(HAN_CLASS)
