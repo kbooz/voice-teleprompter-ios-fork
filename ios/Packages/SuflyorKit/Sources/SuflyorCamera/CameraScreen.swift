@@ -56,7 +56,7 @@ public struct CameraScreen: View {
         .statusBarHidden()
         .persistentSystemOverlays(.hidden)
         .hardwareKeys(enabled: true, handler: { store.handle($0) })
-        // VERIFY: the iOS 18 two-handler form of onCameraCaptureEvent: volume down, Action button, Camera Control and
+        // VERIFY(device): the iOS 18 two-handler form of onCameraCaptureEvent: volume down, Action button, Camera Control and
         // AirPods stem are "primary"; volume up is "secondary". Only works while a capture session runs.
         .onCameraCaptureEvent(
             isEnabled: model.ready,
@@ -343,7 +343,6 @@ private struct MovieFile: Transferable {
     let url: URL
 
     static var transferRepresentation: some TransferRepresentation {
-        // VERIFY: FileRepresentation with SentTransferredFile is the documented way to share a file URL.
         FileRepresentation(exportedContentType: .quickTimeMovie) { movie in
             SentTransferredFile(movie.url)
         }
@@ -366,7 +365,7 @@ enum LensSide {
         guard landscape else { return .top }
         let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
         let scene = scenes.first { $0.activationState == .foregroundActive } ?? scenes.first
-        // VERIFY: `effectiveGeometry.interfaceOrientation` (iOS 16+) is the non-deprecated way to read the orientation.
+        // VERIFY(device): the lens side after rotating the phone, both landscape directions.
         switch scene?.effectiveGeometry.interfaceOrientation {
         case .landscapeLeft: return .right
         case .landscapeRight: return .left

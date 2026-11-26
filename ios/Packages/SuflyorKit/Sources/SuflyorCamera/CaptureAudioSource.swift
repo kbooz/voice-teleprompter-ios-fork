@@ -90,7 +90,7 @@ private final class AudioPipeline: @unchecked Sendable {
         let frames = AVAudioFrameCount(CMSampleBufferGetNumSamples(sampleBuffer))
         guard frames > 0, let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frames) else { return nil }
         buffer.frameLength = frames
-        // VERIFY: copies the samples out of the block buffer into the PCM buffer's audio buffer list.
+        // VERIFY(device): copies the samples out of the block buffer into the PCM buffer's audio buffer list.
         let status = CMSampleBufferCopyPCMDataIntoAudioBufferList(
             sampleBuffer,
             at: 0,

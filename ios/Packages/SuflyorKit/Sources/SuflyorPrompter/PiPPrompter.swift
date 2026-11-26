@@ -114,7 +114,6 @@ public final class PiPPrompter {
 
     private func makeTimebase() {
         var created: CMTimebase?
-        // VERIFY: C-style creation is deprecated on newer SDKs in favour of `CMTimebase(sourceClock:)`; both exist.
         let status = CMTimebaseCreateWithSourceClock(
             allocator: kCFAllocatorDefault,
             sourceClock: CMClockGetHostTimeClock(),
@@ -130,7 +129,7 @@ public final class PiPPrompter {
     private func prepareAudioSession() {
         let session = AVAudioSession.sharedInstance()
         guard session.category != .playAndRecord, session.category != .playback else { return }
-        // VERIFY: PiP needs an active session in one of these categories. With the microphone running (.playAndRecord) this
+        // VERIFY(device): PiP needs an active session in one of these categories. With the microphone running (.playAndRecord) this
         // is skipped; mixing keeps the user's music playing.
         do {
             try session.setCategory(.playback, mode: .default, options: [.mixWithOthers])
@@ -358,9 +357,9 @@ public final class PiPPrompter {
                 Unmanaged.passUnretained(kCFBooleanTrue).toOpaque()
             )
         }
-        // VERIFY: `enqueue(_:)` on the layer is the long-standing API; newer SDKs prefer `sampleBufferRenderer.enqueue(_:)`.
-        if displayLayer.status == .failed { displayLayer.flush() }
-        displayLayer.enqueue(sample)
+        let renderer = displayLayer.sampleBufferRenderer
+        if renderer.status == .failed { renderer.flush() }
+        renderer.enqueue(sample)
     }
 
     // MARK: Events from the system (via PiPBridge)
@@ -408,9 +407,6 @@ extension AVPictureInPictureController {
 
 /// The system calls these on its own schedule. State the system reads (`paused`, the time range) lives behind
 /// `Mutex`es so any thread can answer; everything else hops to the main actor.
-///
-/// VERIFY: if the SDK marks `AVPictureInPictureSampleBufferPlaybackDelegate` / `AVPictureInPictureControllerDelegate`
-/// `@MainActor`, make this class `@MainActor` and conform with `@preconcurrency`; the Mutex then becomes unnecessary.
 private final class PiPBridge: NSObject, AVPictureInPictureSampleBufferPlaybackDelegate, AVPictureInPictureControllerDelegate,
     @unchecked Sendable
 {
@@ -429,7 +425,7 @@ private final class PiPBridge: NSObject, AVPictureInPictureSampleBufferPlaybackD
     }
 
     func pictureInPictureControllerTimeRangeForPlayback(_ pictureInPictureController: AVPictureInPictureController) -> CMTimeRange {
-        // VERIFY: a finite range keeps the skip buttons in the window (an infinite one means "live", without them).
+        // VERIFY(device): a finite range keeps the skip buttons in the window (an infinite one means "live", without them).
         // The length is the script's reading time, so the progress bar means something.
         let seconds = state.withLock { $0.duration }
         return CMTimeRange(start: .zero, duration: CMTime(seconds: seconds, preferredTimescale: 600))
@@ -449,7 +445,6 @@ private final class PiPBridge: NSObject, AVPictureInPictureSampleBufferPlaybackD
         skipByInterval skipInterval: CMTime,
         completion completionHandler: @escaping @Sendable () -> Void
     ) {
-        // VERIFY: the `@Sendable` on the completion handler follows the iOS 26 SDK; drop it if the protocol has none.
         let forward = skipInterval.seconds >= 0
         Task { @MainActor [weak self] in
             self?.owner?.skip(forward: forward)

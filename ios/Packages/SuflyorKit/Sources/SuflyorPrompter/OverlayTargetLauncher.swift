@@ -20,9 +20,9 @@ public enum OverlayTargetLauncher {
     /// Candidate URLs in order of preference.
     static func urls(for target: OverlayTarget) -> [String] {
         switch target {
-        // VERIFY: "instagram://camera" opens the in-app camera; plain "instagram://app" opens the app.
+        // VERIFY(device): "instagram://camera" opens the in-app camera; plain "instagram://app" opens the app.
         case .instagram: ["instagram://camera", "instagram://app"]
-        // VERIFY: TikTok's scheme is "snssdk1233://" (global build), "tiktok://" on some versions; neither is documented.
+        // VERIFY(device): TikTok's scheme is "snssdk1233://" (global build), "tiktok://" on some versions; neither is documented.
         case .tiktok: ["snssdk1233://", "tiktok://"]
         case .camera, .none: []
         }

@@ -30,7 +30,7 @@ enum CameraError: Error, LocalizedError {
 /// `AVAssetWriter` (the movie file) and, through `setAudioHandler`, the speech recognizer. One microphone client, so
 /// the session follows exactly the audio that is recorded.
 ///
-/// Threading, because nothing here can be compiled and checked: the class is `@unchecked Sendable` on these rules.
+/// Threading: the class is `@unchecked Sendable` on these rules.
 /// - `sessionQueue` owns session configuration, `startRunning` and the device.
 /// - `sampleQueue` (serial) receives every video and audio buffer and owns all writer state; writer calls from
 ///   outside go through `sampleQueue.sync` / `.async`.
@@ -83,7 +83,6 @@ final class CameraRecorder: NSObject, @unchecked Sendable {
             self?.thermalStateChanged()
         })
         notificationTokens.append(center.addObserver(forName: AVCaptureSession.wasInterruptedNotification, object: session, queue: nil) { [weak self] note in
-            // VERIFY: the reason key is `AVCaptureSessionInterruptionReasonKey`; logged as a raw number for the journal.
             let reason = (note.userInfo?[AVCaptureSessionInterruptionReasonKey] as? NSNumber)?.intValue ?? -1
             Journal.shared.warning("Camera session interrupted, reason \(reason)")
             self?.notifyInterruption(true)
@@ -156,7 +155,6 @@ final class CameraRecorder: NSObject, @unchecked Sendable {
                 try audioSession.setCategory(
                     .playAndRecord,
                     mode: .videoRecording,
-                    // VERIFY: `.allowBluetoothHFP` is the iOS 26 name (contratos 3.2 uses it too).
                     options: [.mixWithOthers, .allowBluetoothHFP, .defaultToSpeaker]
                 )
                 try audioSession.setActive(true)
@@ -202,7 +200,7 @@ final class CameraRecorder: NSObject, @unchecked Sendable {
             session.addOutput(videoOutput)
             session.addOutput(audioOutput)
 
-            // VERIFY: the data output mirrors front-camera frames by default; turning that off gives the true picture.
+            // VERIFY(device): the data output mirrors front-camera frames by default; turning that off gives the true picture.
             // The file shows the true picture, not the mirror the preview shows (the preview layer mirrors by itself).
             if let connection = videoOutput.connection(with: .video), connection.isVideoMirroringSupported {
                 connection.automaticallyAdjustsVideoMirroring = false
@@ -229,7 +227,7 @@ final class CameraRecorder: NSObject, @unchecked Sendable {
             try device.lockForConfiguration()
             defer { device.unlockForConfiguration() }
             if !supports(device.activeFormat) {
-                // VERIFY: front camera formats at 1080p that reach 60 fps; changing the format drops the preset.
+                // VERIFY(device): front camera formats at 1080p that reach 60 fps; changing the format drops the preset.
                 let candidate = device.formats.first { format in
                     let size = CMVideoFormatDescriptionGetDimensions(format.formatDescription)
                     return size.width == 1920 && size.height == 1080 && supports(format)
@@ -261,7 +259,7 @@ final class CameraRecorder: NSObject, @unchecked Sendable {
             rotationCoordinator == nil,
             let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front)
         else { return }
-        // VERIFY: RotationCoordinator(device:previewLayer:) and its KVO-observable angle properties (iOS 17+).
+        // VERIFY(device): check the preview and capture angles on a real device in each orientation.
         let coordinator = AVCaptureDevice.RotationCoordinator(device: camera, previewLayer: layer)
         rotationCoordinator = coordinator
         observations = [
@@ -314,11 +312,11 @@ final class CameraRecorder: NSObject, @unchecked Sendable {
         let video = AVAssetWriterInput(mediaType: .video, outputSettings: videoSettings)
         video.expectsMediaDataInRealTime = true
         // Buffers arrive in sensor orientation; the file turns them upright with this transform.
-        // VERIFY: angle to transform mapping for the front camera (unmirrored buffers): rotation by the same angle.
+        // VERIFY(device): angle to transform mapping for the front camera (unmirrored buffers): rotation by the same angle.
         video.transform = CGAffineTransform(rotationAngle: CGFloat(angle * .pi / 180))
 
-        // VERIFY: the recommended audio settings come back as [AnyHashable: Any]; AAC at the microphone's rate.
-        let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: .mov) as? [String: Any]
+        // AAC at the microphone's rate.
+        let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: .mov)
         let audio = AVAssetWriterInput(mediaType: .audio, outputSettings: audioSettings)
         audio.expectsMediaDataInRealTime = true
 
