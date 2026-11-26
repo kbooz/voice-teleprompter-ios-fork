@@ -1,0 +1,119 @@
+# Builds the shared Kotlin core as an XCFramework, then tests the iOS app and the SuflyorKit package in the simulator.
+# Runs only for changes that can affect iOS (see the path filters). Same pinned actions and permissions as ci.yml.
+name: iOS
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ios/**"
+      - "core/**"
+      - "tools/ios/**"
+      - "tools/speech-assets.json"
+      - "app/build.gradle.kts"
+      - "app/src/main/res/values*/strings*.xml"
+      - ".github/workflows/ios.yml"
+  pull_request:
+    paths:
+      - "ios/**"
+      - "core/**"
+      - "tools/ios/**"
+      - "tools/speech-assets.json"
+      - "app/build.gradle.kts"
+      - "app/src/main/res/values*/strings*.xml"
+      - ".github/workflows/ios.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    # VERIFY: the runner label that carries Xcode 27 (the macOS image name changes with each Xcode release).
+    runs-on: macos-26
+    timeout-minutes: 60
+    env:
+      # VERIFY: the Xcode 27 install path on the runner image, and a simulator name that exists in that Xcode.
+      DEVELOPER_DIR: /Applications/Xcode_27.0.app/Contents/Developer
+      SIMULATOR: platform=iOS Simulator,name=iPhone 17,OS=latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: 17
+
+      # Validates the Gradle wrapper checksum; 'basic' keeps the cache fully open source.
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+        with:
+          cache-provider: basic
+
+      - name: Python checks (string catalog, speech assets)
+        run: |
+          python3 tools/ios/test_convert_strings.py
+          python3 tools/ios/convert_strings.py --check
+          python3 tools/ios/check_speech_assets.py
+
+      - name: No network code in the iOS sources
+        run: |
+          if grep -rnE "URLSession|NWConnection|NWPathMonitor|CFNetwork|CFSocket|WKWebView|URLRequest" ios --include='*.swift'; then
+            echo "::error::network APIs found in ios/ (the app must not use the network)"
+            exit 1
+          fi
+
+      # The shared core: its JVM tests and the XCFramework the app links.
+      - name: Kotlin core (tests and XCFramework)
+        run: |
+          chmod +x ./gradlew
+          ./gradlew --no-daemon --stacktrace -p core jvmTest assembleSuflyorCoreReleaseXCFramework
+
+      - name: sherpa-onnx XCFrameworks
+        run: ios/scripts/fetch-sherpa-onnx.sh
+
+      # The bundled ru/en/tr models of the "full" build, checked against their SHA-256 (the script skips files it has).
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ios/Suflyor/Models
+          key: ios-speech-models-${{ hashFiles('tools/speech-assets.json') }}
+
+      - name: Speech models
+        run: ios/scripts/fetch-speech-models.sh
+
+      - name: Generate the Xcode project
+        run: |
+          brew install xcodegen
+          xcodegen generate --spec ios/project.yml
+
+      - name: Test the app (scheme Suflyor)
+        run: |
+          xcodebuild test \
+            -project ios/Suflyor.xcodeproj \
+            -scheme Suflyor \
+            -destination "$SIMULATOR" \
+            -resultBundlePath "$RUNNER_TEMP/Suflyor.xcresult" \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Test the SuflyorKit package
+        working-directory: ios/Packages/SuflyorKit
+        run: |
+          xcodebuild test \
+            -scheme SuflyorKit-Package \
+            -destination "$SIMULATOR" \
+            -resultBundlePath "$RUNNER_TEMP/SuflyorKit.xcresult"
+
+      - name: Keep test results
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ios-test-results
+          path: |
+            ${{ runner.temp }}/Suflyor.xcresult
+            ${{ runner.temp }}/SuflyorKit.xcresult
+          retention-days: 7
