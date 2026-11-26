@@ -31,28 +31,17 @@ public struct CameraScreen: View {
     }
 
     public var body: some View {
-        GeometryReader { geo in
-            let landscape = geo.size.width > geo.size.height
-            let lens = LensSide.current(landscape: landscape)
-            ZStack {
-                Color.black
-                CameraPreview(recorder: model.recorder)
-                if model.access == .denied {
-                    permissionCard
-                } else {
-                    band(geo: geo, landscape: landscape, lens: lens)
-                    statusChip(geo: geo, landscape: landscape, lens: lens)
-                    controls(geo: geo, landscape: landscape, lens: lens)
-                    CountdownOverlay(value: store.state.countdown).allowsHitTesting(false)
-                    notices(geo: geo)
-                    if let finished = model.finished { finishedCard(finished) }
-                }
+        // The outer reader sits inside the safe area, so it sees the real insets (island, home indicator). The inner
+        // content then ignores the safe area to get the full screen: the preview goes edge to edge, and layout code
+        // uses `ScreenMetrics.safeAreaInsets` instead of the zeroed insets of the full-screen proxy.
+        GeometryReader { safe in
+            GeometryReader { full in
+                content(geo: ScreenMetrics(size: full.size, safeAreaInsets: safe.safeAreaInsets))
             }
-            .frame(width: geo.size.width, height: geo.size.height)
+            .ignoresSafeArea()
         }
         // Physical layout: the lens is on the physical left or right, whatever the language's direction.
         .environment(\.layoutDirection, .leftToRight)
-        .ignoresSafeArea()
         .statusBarHidden()
         .persistentSystemOverlays(.hidden)
         .hardwareKeys(enabled: true, handler: { store.handle($0) })
@@ -91,11 +80,32 @@ public struct CameraScreen: View {
         }
     }
 
+    @ViewBuilder
+    private func content(geo: ScreenMetrics) -> some View {
+        let landscape = geo.size.width > geo.size.height
+        let lens = LensSide.current(landscape: landscape)
+        ZStack {
+            Color.black
+            CameraPreview(recorder: model.recorder)
+            if model.access == .denied {
+                permissionCard
+            } else {
+                band(geo: geo, landscape: landscape, lens: lens)
+                statusChip(geo: geo, landscape: landscape, lens: lens)
+                controls(geo: geo, landscape: landscape, lens: lens)
+                CountdownOverlay(value: store.state.countdown).allowsHitTesting(false)
+                notices(geo: geo)
+                if let finished = model.finished { finishedCard(finished) }
+            }
+        }
+        .frame(width: geo.size.width, height: geo.size.height)
+    }
+
     // MARK: Text band
 
-    /// The over-camera style with the band's placement folded in: the text starts under the Dynamic Island in portrait,
-    /// and its margin on the lens side grows by the cut-out's depth when sideways.
-    private func bandStyle(geo: GeometryProxy, landscape: Bool, lens: LensSide) -> PrompterStyle {
+    /// The over-camera style with the band's placement folded in: its margin on the lens side grows by the cut-out's
+    /// depth when sideways. In portrait the band is moved below the island instead (see `band`).
+    private func bandStyle(geo: ScreenMetrics, landscape: Bool, lens: LensSide) -> PrompterStyle {
         var style = PrompterStyle.overCamera(settings)
         if landscape {
             if lens == .left {
@@ -103,14 +113,12 @@ public struct CameraScreen: View {
             } else {
                 style.paddingEnd += Double(geo.safeAreaInsets.trailing)
             }
-        } else {
-            style.topInset = Double(geo.safeAreaInsets.top) + PrompterStyle.defaultTopInset
         }
         return style
     }
 
     @ViewBuilder
-    private func band(geo: GeometryProxy, landscape: Bool, lens: LensSide) -> some View {
+    private func band(geo: ScreenMetrics, landscape: Bool, lens: LensSide) -> some View {
         if let script = store.script {
             let style = bandStyle(geo: geo, landscape: landscape, lens: lens)
             let text = PrompterTextView(
@@ -132,8 +140,13 @@ public struct CameraScreen: View {
                     ))
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: lens == .left ? .leading : .trailing)
             } else {
-                text
-                    .frame(width: geo.size.width, height: style.preferredHeight)
+                // The text is clipped to start below the island (earlier lines must not scroll into it); the strip
+                // behind the island gets the band's tint so the band still looks like one piece.
+                VStack(spacing: 0) {
+                    Color.black.opacity(style.backgroundOpacity).frame(height: geo.safeAreaInsets.top)
+                    text.frame(height: style.preferredHeight)
+                }
+                    .frame(width: geo.size.width)
                     .clipShape(UnevenRoundedRectangle(bottomLeadingRadius: 22, bottomTrailingRadius: 22))
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
@@ -143,7 +156,7 @@ public struct CameraScreen: View {
     // MARK: Status
 
     @ViewBuilder
-    private func statusChip(geo: GeometryProxy, landscape: Bool, lens: LensSide) -> some View {
+    private func statusChip(geo: ScreenMetrics, landscape: Bool, lens: LensSide) -> some View {
         let state = store.state
         let status = SessionPresentation.status(state, wpm: settings.autoScrollWpm, compact: true)
         let bandHeight = PrompterStyle.overCamera(settings).preferredHeight + Double(geo.safeAreaInsets.top)
@@ -168,7 +181,7 @@ public struct CameraScreen: View {
     // MARK: Controls
 
     @ViewBuilder
-    private func controls(geo: GeometryProxy, landscape: Bool, lens: LensSide) -> some View {
+    private func controls(geo: ScreenMetrics, landscape: Bool, lens: LensSide) -> some View {
         let state = store.state
         let items = VStackOrHStack(vertical: landscape) {
             PrompterIconButton(
@@ -251,7 +264,7 @@ public struct CameraScreen: View {
 
     // MARK: Cards and notices
 
-    private func notices(geo: GeometryProxy) -> some View {
+    private func notices(geo: ScreenMetrics) -> some View {
         VStack(spacing: 6) {
             if model.hot {
                 Label(L10n.text("ios_camera_thermal"), systemImage: "thermometer.high")
@@ -347,6 +360,14 @@ private struct MovieFile: Transferable {
             SentTransferredFile(movie.url)
         }
     }
+}
+
+// MARK: - Metrics
+
+/// Full-screen size plus the real safe-area insets (measured before the content ignores the safe area).
+struct ScreenMetrics {
+    let size: CGSize
+    let safeAreaInsets: EdgeInsets
 }
 
 // MARK: - Placement
