@@ -1,0 +1,6 @@
+"ios_intent_record_title" = "Gravar com teleprompter";
+"ios_intent_record_description" = "Abre o Suflyor na câmera com o roteiro atual.";
+"ios_intent_record_short" = "Gravar";
+"ios_intent_pip_title" = "Mostrar o roteiro sobre outro app";
+"ios_intent_pip_description" = "Abre o Suflyor para iniciar a janela flutuante sobre o Instagram, o TikTok ou a Câmera.";
+"ios_intent_pip_short" = "Flutuar sobre um app";

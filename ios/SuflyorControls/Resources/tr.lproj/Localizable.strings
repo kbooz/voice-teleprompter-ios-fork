@@ -1,0 +1,6 @@
+"ios_intent_record_title" = "Teleprompter ile kaydet";
+"ios_intent_record_description" = "Suflyor'u geçerli metinle kamerada açar.";
+"ios_intent_record_short" = "Kaydet";
+"ios_intent_pip_title" = "Metni başka bir uygulamanın üstünde göster";
+"ios_intent_pip_description" = "Instagram, TikTok veya Kamera'nın üstünde yüzen pencereyi başlatmak için Suflyor'u açar.";
+"ios_intent_pip_short" = "Uygulamanın üstünde";

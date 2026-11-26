@@ -1,0 +1,122 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "NSMicrophoneUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suflyor listens to your voice to move the text as you read."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Suflyor ouve sua voz para mover o texto enquanto você lê."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suflyor слушает ваш голос, чтобы двигать текст вслед за чтением."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suflyor, okurken metni ilerletmek için sesinizi dinler."
+          }
+        }
+      }
+    },
+    "NSCameraUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suflyor shows the front camera behind the text and records your video."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Suflyor mostra a câmera frontal atrás do texto e grava o seu vídeo."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suflyor показывает фронтальную камеру за текстом и записывает ваше видео."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suflyor, ön kamerayı metnin arkasında gösterir ve videonuzu kaydeder."
+          }
+        }
+      }
+    },
+    "NSPhotoLibraryAddUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suflyor saves the videos you record to your photo library."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Suflyor salva na sua galeria os vídeos que você grava."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suflyor сохраняет записанные вами видео в медиатеку."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suflyor, kaydettiğiniz videoları fotoğraf kitaplığınıza kaydeder."
+          }
+        }
+      }
+    },
+    "NSSpeechRecognitionUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suflyor can use Apple's on-device speech recognition to follow your reading."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Suflyor pode usar o reconhecimento de fala da Apple, no aparelho, para acompanhar sua leitura."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suflyor может использовать распознавание речи Apple прямо на устройстве, чтобы следовать за вашим чтением."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suflyor, okumanızı takip etmek için Apple'ın cihaz üzerindeki konuşma tanımasını kullanabilir."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

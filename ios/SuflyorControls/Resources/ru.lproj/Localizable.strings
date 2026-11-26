@@ -1,0 +1,6 @@
+"ios_intent_record_title" = "Запись с телесуфлёром";
+"ios_intent_record_description" = "Открывает Suflyor на камере с текущим сценарием.";
+"ios_intent_record_short" = "Запись";
+"ios_intent_pip_title" = "Показать текст поверх другого приложения";
+"ios_intent_pip_description" = "Открывает Suflyor, чтобы запустить плавающее окно поверх Instagram, TikTok или Камеры.";
+"ios_intent_pip_short" = "Поверх приложения";

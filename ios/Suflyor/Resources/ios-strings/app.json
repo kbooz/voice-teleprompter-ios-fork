@@ -1,0 +1,410 @@
+{
+  "ios_app_action_record": {
+    "en": "Record with teleprompter",
+    "pt-BR": "Gravar com teleprompter",
+    "ru": "Записать с суфлёром",
+    "tr": "Teleprompter ile kaydet"
+  },
+  "ios_app_action_pip": {
+    "en": "Over another app",
+    "pt-BR": "Sobre outro app",
+    "ru": "Поверх другого приложения",
+    "tr": "Başka uygulamanın üstünde"
+  },
+  "ios_app_camera_blocked": {
+    "en": "The camera or microphone is blocked — turn them on in the app's settings",
+    "pt-BR": "A câmera ou o microfone está bloqueado — ative nos ajustes do app",
+    "ru": "Камера или микрофон заблокированы — включите их в настройках приложения",
+    "tr": "Kamera veya mikrofon engellenmiş — uygulamanın ayarlarından açın"
+  },
+  "ios_app_engine_title": {
+    "en": "Recognition engine",
+    "pt-BR": "Mecanismo de reconhecimento",
+    "ru": "Распознавание речи",
+    "tr": "Tanıma motoru"
+  },
+  "ios_app_engine_sherpa": {
+    "en": "Sherpa-onnx",
+    "pt-BR": "Sherpa-onnx",
+    "ru": "Sherpa-onnx",
+    "tr": "Sherpa-onnx"
+  },
+  "ios_app_engine_apple": {
+    "en": "Apple",
+    "pt-BR": "Apple",
+    "ru": "Apple",
+    "tr": "Apple"
+  },
+  "ios_app_engine_sherpa_hint": {
+    "en": "The same models and speech packs as the Android app. Works for all 14 languages.",
+    "pt-BR": "Os mesmos modelos e pacotes de voz do app Android. Funciona nos 14 idiomas.",
+    "ru": "Те же модели и языковые пакеты, что и в Android-версии. Работает для всех 14 языков.",
+    "tr": "Android uygulamasıyla aynı modeller ve konuşma paketleri. 14 dilin hepsinde çalışır."
+  },
+  "ios_app_engine_apple_hint": {
+    "en": "Apple's recognizer, on the device. It needs no speech pack and covers the languages Apple offers on this iPhone.",
+    "pt-BR": "O reconhecedor da Apple, no aparelho. Não precisa de pacote de voz e atende os idiomas que a Apple oferece neste iPhone.",
+    "ru": "Распознаватель Apple, прямо на устройстве. Пакет языка не нужен; доступны языки, которые Apple поддерживает на этом iPhone.",
+    "tr": "Apple'ın cihaz üzerindeki tanıyıcısı. Konuşma paketi gerektirmez; Apple'ın bu iPhone'da sunduğu dilleri kapsar."
+  },
+  "ios_app_fps_value": {
+    "en": "%1$d fps",
+    "pt-BR": "%1$d fps",
+    "ru": "%1$d кадров/с",
+    "tr": "%1$d fps"
+  },
+  "ios_app_keys_group_camera": {
+    "en": "Camera buttons",
+    "pt-BR": "Botões da câmera",
+    "ru": "Кнопки камеры",
+    "tr": "Kamera düğmeleri"
+  },
+  "ios_app_keys_group_keyboard": {
+    "en": "Keyboard and remote",
+    "pt-BR": "Teclado e controle remoto",
+    "ru": "Клавиатура и пульт",
+    "tr": "Klavye ve kumanda"
+  },
+  "ios_app_keys_group_pip": {
+    "en": "Floating window",
+    "pt-BR": "Janela flutuante",
+    "ru": "Плавающее окно",
+    "tr": "Yüzen pencere"
+  },
+  "ios_app_keys_camera_hint": {
+    "en": "The volume buttons, the Action button and Camera Control work while the camera screen is open.",
+    "pt-BR": "Os botões de volume, o Botão de Ação e o Controle da Câmera funcionam enquanto a tela da câmera está aberta.",
+    "ru": "Кнопки громкости, кнопка действия и Camera Control работают, пока открыт экран камеры.",
+    "tr": "Ses düğmeleri, Eylem düğmesi ve Kamera Kontrolü kamera ekranı açıkken çalışır."
+  },
+  "ios_app_language_hint": {
+    "en": "Choose the language in iOS Settings, Suflyor, Language",
+    "pt-BR": "Escolha o idioma em Ajustes do iOS, Suflyor, Idioma",
+    "ru": "Язык выбирается в Настройках iOS, Suflyor, Язык",
+    "tr": "Dili iOS Ayarları, Suflyor, Dil bölümünden seçin"
+  },
+  "ios_app_licenses_title": {
+    "en": "Licenses",
+    "pt-BR": "Licenças",
+    "ru": "Лицензии",
+    "tr": "Lisanslar"
+  },
+  "ios_app_licenses_gpl": {
+    "en": "Suflyor license (GPL-3.0)",
+    "pt-BR": "Licença do Suflyor (GPL-3.0)",
+    "ru": "Лицензия Suflyor (GPL-3.0)",
+    "tr": "Suflyor lisansı (GPL-3.0)"
+  },
+  "ios_app_licenses_third_party": {
+    "en": "Third-party components",
+    "pt-BR": "Componentes de terceiros",
+    "ru": "Сторонние компоненты",
+    "tr": "Üçüncü taraf bileşenler"
+  },
+  "ios_app_licenses_ios": {
+    "en": "Added in the iOS app",
+    "pt-BR": "Incluídos no app iOS",
+    "ru": "Добавлено в iOS-версии",
+    "tr": "iOS uygulamasında eklenenler"
+  },
+  "ios_app_pack_bundled": {
+    "en": "Built in",
+    "pt-BR": "Incluído no app",
+    "ru": "Встроен",
+    "tr": "Uygulamada hazır"
+  },
+  "ios_app_pack_installing": {
+    "en": "Installing the pack…",
+    "pt-BR": "Instalando o pacote…",
+    "ru": "Установка пакета…",
+    "tr": "Paket kuruluyor…"
+  },
+  "ios_app_pip_hint": {
+    "en": "Shows the script in a small window that stays on top when you switch to another app. It is experimental: iOS decides the size and position of the window, and another app that is recording may stop Suflyor from hearing you.",
+    "pt-BR": "Mostra o roteiro numa janela pequena que fica por cima quando você troca de app. É experimental: o iOS decide o tamanho e a posição da janela, e outro app que esteja gravando pode impedir o Suflyor de ouvir você.",
+    "ru": "Показывает текст в маленьком окне, которое остаётся поверх других приложений. Это экспериментальная функция: размер и положение окна выбирает iOS, а другое приложение, которое ведёт запись, может лишить Suflyor доступа к микрофону.",
+    "tr": "Metni, başka bir uygulamaya geçtiğinizde üstte kalan küçük bir pencerede gösterir. Deneyseldir: pencerenin boyutunu ve konumunu iOS belirler, kayıt yapan başka bir uygulama Suflyor'un sizi duymasını engelleyebilir."
+  },
+  "ios_app_pip_limits": {
+    "en": "If the other app takes the microphone, the text keeps scrolling by itself at your speed. To follow your voice for sure, record with Suflyor's own camera.",
+    "pt-BR": "Se o outro app ocupar o microfone, o texto continua rolando sozinho na sua velocidade. Para seguir sua voz com certeza, grave com a câmera do próprio Suflyor.",
+    "ru": "Если другое приложение займёт микрофон, текст продолжит прокручиваться сам с заданной скоростью. Чтобы текст точно шёл за голосом, записывайте на камеру самого Suflyor.",
+    "tr": "Diğer uygulama mikrofonu alırsa metin, ayarladığınız hızda kendi kendine kaymaya devam eder. Sesinizi kesin takip etmesi için Suflyor'un kendi kamerasıyla kaydedin."
+  },
+  "ios_app_pip_start": {
+    "en": "Start the floating window",
+    "pt-BR": "Iniciar a janela flutuante",
+    "ru": "Запустить плавающее окно",
+    "tr": "Yüzen pencereyi başlat"
+  },
+  "ios_app_pip_stop": {
+    "en": "Stop",
+    "pt-BR": "Parar",
+    "ru": "Остановить",
+    "tr": "Durdur"
+  },
+  "ios_app_pip_target": {
+    "en": "Open after starting",
+    "pt-BR": "Abrir após iniciar",
+    "ru": "Открыть после запуска",
+    "tr": "Başlattıktan sonra aç"
+  },
+  "ios_app_points_value": {
+    "en": "%1$d pt",
+    "pt-BR": "%1$d pt",
+    "ru": "%1$d пт",
+    "tr": "%1$d pt"
+  },
+  "ios_app_privacy_title": {
+    "en": "Privacy",
+    "pt-BR": "Privacidade",
+    "ru": "Конфиденциальность",
+    "tr": "Gizlilik"
+  },
+  "ios_app_privacy_1": {
+    "en": "Suflyor has no network code: it doesn't connect to the internet, has no accounts, no analytics and no ads.",
+    "pt-BR": "O Suflyor não tem código de rede: não se conecta à internet, não tem contas, análises nem anúncios.",
+    "ru": "В Suflyor нет сетевого кода: приложение не выходит в интернет, в нём нет учётных записей, аналитики и рекламы.",
+    "tr": "Suflyor'da ağ kodu yok: internete bağlanmaz; hesap, analiz ve reklam içermez."
+  },
+  "ios_app_privacy_2": {
+    "en": "Your voice is recognized on this iPhone. Audio and recognized text are never stored or sent anywhere.",
+    "pt-BR": "Sua voz é reconhecida neste iPhone. O áudio e o texto reconhecido nunca são guardados nem enviados.",
+    "ru": "Голос распознаётся на этом iPhone. Звук и распознанный текст нигде не сохраняются и никуда не отправляются.",
+    "tr": "Sesiniz bu iPhone'da tanınır. Ses ve tanınan metin hiçbir yerde saklanmaz veya gönderilmez."
+  },
+  "ios_app_privacy_3": {
+    "en": "Scripts and settings stay on this iPhone. Videos you record are saved to your photo library only when you choose to.",
+    "pt-BR": "Roteiros e ajustes ficam neste iPhone. Os vídeos gravados só vão para a sua galeria quando você escolhe.",
+    "ru": "Тексты и настройки остаются на этом iPhone. Записанные видео попадают в медиатеку, только если вы это выберете.",
+    "tr": "Metinler ve ayarlar bu iPhone'da kalır. Kaydettiğiniz videolar yalnızca siz seçerseniz fotoğraf kitaplığına kaydedilir."
+  },
+  "ios_app_privacy_4": {
+    "en": "The log in Settings stays on the phone; you decide whether to share it. Speech packs are downloaded by your browser, not by the app.",
+    "pt-BR": "O registro nos Ajustes fica no aparelho; você decide se o compartilha. Os pacotes de voz são baixados pelo seu navegador, não pelo app.",
+    "ru": "Журнал в настройках остаётся на телефоне; делиться им или нет — решаете вы. Языковые пакеты скачивает ваш браузер, а не приложение.",
+    "tr": "Ayarlardaki günlük telefonda kalır; paylaşıp paylaşmamaya siz karar verirsiniz. Konuşma paketlerini uygulama değil tarayıcınız indirir."
+  },
+  "ios_app_ready_blocked_hint": {
+    "en": "iOS doesn't ask again after a refusal. Tap Open and turn the permission on in Settings.",
+    "pt-BR": "O iOS não pergunta de novo depois de uma recusa. Toque em Abrir e ative a permissão nos Ajustes.",
+    "ru": "После отказа iOS больше не спрашивает. Нажмите «Открыть» и включите разрешение в Настройках.",
+    "tr": "iOS, reddedildikten sonra tekrar sormaz. Aç'a dokunup izni Ayarlar'dan açın."
+  },
+  "ios_app_ready_camera_title": {
+    "en": "Camera",
+    "pt-BR": "Câmera",
+    "ru": "Камера",
+    "tr": "Kamera"
+  },
+  "ios_app_ready_camera_hint": {
+    "en": "Needed to record video with the text behind the lens",
+    "pt-BR": "Necessária para gravar vídeo com o texto perto da lente",
+    "ru": "Нужна, чтобы записывать видео с текстом у объектива",
+    "tr": "Metin lensin yanındayken video kaydetmek için gerekir"
+  },
+  "ios_app_ready_mic_hint": {
+    "en": "Needed to follow your voice",
+    "pt-BR": "Necessário para seguir sua voz",
+    "ru": "Нужен, чтобы следовать за голосом",
+    "tr": "Sesinizi takip etmek için gerekir"
+  },
+  "ios_app_ready_model_done": {
+    "en": "A speech model is available",
+    "pt-BR": "Há um modelo de voz disponível",
+    "ru": "Модель речи доступна",
+    "tr": "Bir konuşma modeli hazır"
+  },
+  "ios_app_record_fps": {
+    "en": "Frame rate",
+    "pt-BR": "Taxa de quadros",
+    "ru": "Частота кадров",
+    "tr": "Kare hızı"
+  },
+  "ios_app_record_hevc": {
+    "en": "HEVC video",
+    "pt-BR": "Vídeo HEVC",
+    "ru": "Видео HEVC",
+    "tr": "HEVC video"
+  },
+  "ios_app_record_hevc_hint": {
+    "en": "Smaller files; some apps don't accept them. Off uses H.264.",
+    "pt-BR": "Arquivos menores; alguns apps não os aceitam. Desligado usa H.264.",
+    "ru": "Файлы меньше; некоторые приложения их не принимают. Если выключено, используется H.264.",
+    "tr": "Daha küçük dosyalar; bazı uygulamalar kabul etmez. Kapalıyken H.264 kullanılır."
+  },
+  "ios_app_recording_section": {
+    "en": "Video recording",
+    "pt-BR": "Gravação de vídeo",
+    "ru": "Запись видео",
+    "tr": "Video kaydı"
+  },
+  "ios_app_settings_camera_text": {
+    "en": "Text over the camera",
+    "pt-BR": "Texto sobre a câmera",
+    "ru": "Текст поверх камеры",
+    "tr": "Kamera üzerindeki metin"
+  },
+  "ios_app_settings_readiness": {
+    "en": "Ready to record",
+    "pt-BR": "Pronto para gravar",
+    "ru": "Готовность к записи",
+    "tr": "Kayda hazırlık"
+  },
+  "ios_app_setup_title": {
+    "en": "Set up recording",
+    "pt-BR": "Configure a gravação",
+    "ru": "Настрой запись",
+    "tr": "Kaydı ayarlayın"
+  },
+  "ios_app_setup_progress": {
+    "en": "%1$d of %2$d done: needs the microphone, the camera and a speech model",
+    "pt-BR": "%1$d de %2$d concluídos: precisa do microfone, da câmera e de um modelo de voz",
+    "ru": "Готово %1$d из %2$d: нужны микрофон, камера и модель речи",
+    "tr": "%1$d / %2$d tamam: mikrofon, kamera ve bir konuşma modeli gerekir"
+  },
+  "ios_app_sum_advanced": {
+    "en": "Diagnostics line, log",
+    "pt-BR": "Linha de diagnóstico, registro",
+    "ru": "Строка диагностики, журнал",
+    "tr": "Tanılama satırı, günlük"
+  },
+  "ios_app_about_engines": {
+    "en": "Speech recognition: sherpa-onnx and Apple · models: Apache-2.0, CC BY-SA 4.0 (Turkish)",
+    "pt-BR": "Reconhecimento de voz: sherpa-onnx e Apple · modelos: Apache-2.0, CC BY-SA 4.0 (turco)",
+    "ru": "Распознавание речи: sherpa-onnx и Apple · модели: Apache-2.0, CC BY-SA 4.0 (турецкий)",
+    "tr": "Konuşma tanıma: sherpa-onnx ve Apple · modeller: Apache-2.0, CC BY-SA 4.0 (Türkçe)"
+  },
+  "ios_app_key_capturePrimary": {
+    "en": "Volume − / Action button / Camera Control",
+    "pt-BR": "Volume − / Botão de Ação / Controle da Câmera",
+    "ru": "Громкость − / кнопка действия / Camera Control",
+    "tr": "Ses − / Eylem düğmesi / Kamera Kontrolü"
+  },
+  "ios_app_key_captureSecondary": {
+    "en": "Volume +",
+    "pt-BR": "Volume +",
+    "ru": "Громкость +",
+    "tr": "Ses +"
+  },
+  "ios_app_key_space": {
+    "en": "Space",
+    "pt-BR": "Espaço",
+    "ru": "Пробел",
+    "tr": "Boşluk"
+  },
+  "ios_app_key_enter": {
+    "en": "Return",
+    "pt-BR": "Return",
+    "ru": "Ввод (Return)",
+    "tr": "Return"
+  },
+  "ios_app_key_arrowUp": {
+    "en": "Arrow up",
+    "pt-BR": "Seta para cima",
+    "ru": "Стрелка вверх",
+    "tr": "Yukarı ok"
+  },
+  "ios_app_key_arrowDown": {
+    "en": "Arrow down",
+    "pt-BR": "Seta para baixo",
+    "ru": "Стрелка вниз",
+    "tr": "Aşağı ok"
+  },
+  "ios_app_key_arrowLeft": {
+    "en": "Arrow left",
+    "pt-BR": "Seta para a esquerda",
+    "ru": "Стрелка влево",
+    "tr": "Sol ok"
+  },
+  "ios_app_key_arrowRight": {
+    "en": "Arrow right",
+    "pt-BR": "Seta para a direita",
+    "ru": "Стрелка вправо",
+    "tr": "Sağ ok"
+  },
+  "ios_app_key_pageUp": {
+    "en": "Page up",
+    "pt-BR": "Page Up",
+    "ru": "Page Up",
+    "tr": "Page Up"
+  },
+  "ios_app_key_pageDown": {
+    "en": "Page down",
+    "pt-BR": "Page Down",
+    "ru": "Page Down",
+    "tr": "Page Down"
+  },
+  "ios_app_key_mediaPlayPause": {
+    "en": "Play/Pause key",
+    "pt-BR": "Tecla Play/Pausa",
+    "ru": "Клавиша Play/Пауза",
+    "tr": "Oynat/Duraklat tuşu"
+  },
+  "ios_app_key_mediaNext": {
+    "en": "Next track",
+    "pt-BR": "Próxima faixa",
+    "ru": "Следующий трек",
+    "tr": "Sonraki parça"
+  },
+  "ios_app_key_mediaPrevious": {
+    "en": "Previous track",
+    "pt-BR": "Faixa anterior",
+    "ru": "Предыдущий трек",
+    "tr": "Önceki parça"
+  },
+  "ios_app_key_pipPlayPause": {
+    "en": "Play/Pause",
+    "pt-BR": "Play/Pausa",
+    "ru": "Play/Пауза",
+    "tr": "Oynat/Duraklat"
+  },
+  "ios_app_key_pipSkipForward": {
+    "en": "Skip forward",
+    "pt-BR": "Avançar",
+    "ru": "Вперёд",
+    "tr": "İleri atla"
+  },
+  "ios_app_key_pipSkipBack": {
+    "en": "Skip back",
+    "pt-BR": "Voltar",
+    "ru": "Назад",
+    "tr": "Geri atla"
+  },
+  "ios_intent_record_title": {
+    "en": "Record with teleprompter",
+    "pt-BR": "Gravar com teleprompter",
+    "ru": "Запись с телесуфлёром",
+    "tr": "Teleprompter ile kaydet"
+  },
+  "ios_intent_record_description": {
+    "en": "Opens Suflyor on the camera with the current script.",
+    "pt-BR": "Abre o Suflyor na câmera com o roteiro atual.",
+    "ru": "Открывает Suflyor на камере с текущим сценарием.",
+    "tr": "Suflyor'u geçerli metinle kamerada açar."
+  },
+  "ios_intent_record_short": {
+    "en": "Record",
+    "pt-BR": "Gravar",
+    "ru": "Запись",
+    "tr": "Kaydet"
+  },
+  "ios_intent_pip_title": {
+    "en": "Show the script over another app",
+    "pt-BR": "Mostrar o roteiro sobre outro app",
+    "ru": "Показать текст поверх другого приложения",
+    "tr": "Metni başka bir uygulamanın üstünde göster"
+  },
+  "ios_intent_pip_description": {
+    "en": "Opens Suflyor to start the floating window over Instagram, TikTok or the Camera.",
+    "pt-BR": "Abre o Suflyor para iniciar a janela flutuante sobre o Instagram, o TikTok ou a Câmera.",
+    "ru": "Открывает Suflyor, чтобы запустить плавающее окно поверх Instagram, TikTok или Камеры.",
+    "tr": "Instagram, TikTok veya Kamera'nın üstünde yüzen pencereyi başlatmak için Suflyor'u açar."
+  },
+  "ios_intent_pip_short": {
+    "en": "Float over an app",
+    "pt-BR": "Flutuar sobre um app",
+    "ru": "Поверх приложения",
+    "tr": "Uygulamanın üstünde"
+  }
+}
