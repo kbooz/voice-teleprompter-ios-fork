@@ -28,9 +28,8 @@ enum ZipReading {
 
     /// Nil when the bytes are not a readable zip (callers treat that as "no such entry").
     static func open(_ data: Data) -> Archive? {
-        // VERIFY: ZIPFoundation 0.9.19: `Archive(data:accessMode:)` is a throwing init (older releases: failable);
-        // `try?` compiles with both.
-        try? Archive(data: data, accessMode: .read)
+        // Explicit `pathEncoding` picks the throwing init; the overload without it is the deprecated failable one.
+        try? Archive(data: data, accessMode: .read, pathEncoding: nil)
     }
 
     /// Reads the named entries into memory and stops as soon as all of them are found. When skipping other entries
@@ -55,7 +54,6 @@ enum ZipReading {
             var total: Int64 = 0
             do {
                 // The chunks are counted as they come, so a header that lies about the size still can't blow up.
-                // VERIFY: `Archive.extract(_:bufferSize:skipCRC32:progress:consumer:)` with a throwing consumer.
                 _ = try archive.extract(entry) { chunk in
                     total += Int64(chunk.count)
                     budget -= Int64(chunk.count)
