@@ -1,0 +1,20 @@
+{
+  "ios_speech_error_permission": {
+    "en": "Microphone access is off. Allow it for Suflyor in Settings.",
+    "pt-BR": "O acesso ao microfone está desativado. Permita para o Suflyor em Ajustes.",
+    "ru": "Доступ к микрофону выключен. Разрешите его для Suflyor в Настройках.",
+    "tr": "Mikrofon erişimi kapalı. Ayarlar'dan Suflyor için izin verin."
+  },
+  "ios_speech_error_audio_session": {
+    "en": "Couldn't start the audio session: %@",
+    "pt-BR": "Não foi possível iniciar a sessão de áudio: %@",
+    "ru": "Не удалось запустить аудиосессию: %@",
+    "tr": "Ses oturumu başlatılamadı: %@"
+  },
+  "ios_speech_error_interrupted": {
+    "en": "Another app or a call took the microphone. The text moves on the timer.",
+    "pt-BR": "Outro app ou uma chamada pegou o microfone. O texto segue pelo cronômetro.",
+    "ru": "Микрофон занят другим приложением или звонком. Текст движется по таймеру.",
+    "tr": "Mikrofonu başka bir uygulama ya da bir arama aldı. Metin zamanlayıcıyla ilerliyor."
+  }
+}

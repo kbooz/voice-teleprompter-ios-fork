@@ -216,6 +216,7 @@ public final class MicrophoneAudioSource: AudioSource, @unchecked Sendable {
                 lock.withLock {
                     if running?.generation == generation { running?.interrupted = false }
                 }
+                Journal.shared.info("Microphone restarted after the interruption")
                 yieldIfCurrent(.resumed, generation: generation)
                 return
             }
@@ -238,7 +239,9 @@ public final class MicrophoneAudioSource: AudioSource, @unchecked Sendable {
         // While interrupted the system stops the engine too: the resume path rebuilds it.
         let skip = lock.withLock { running?.generation != generation || running?.interrupted == true }
         guard !skip else { return }
-        if !rebuildEngine(generation: generation) {
+        if rebuildEngine(generation: generation) {
+            Journal.shared.info("Microphone restarted after an input change")
+        } else {
             fail(generation, with: .startFailed("the audio input changed and could not be restarted"))
         }
     }

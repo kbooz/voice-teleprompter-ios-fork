@@ -178,7 +178,9 @@ public final class SherpaAsr: AsrEngine, @unchecked Sendable {
         config.rule3_min_utterance_length = 12.0
         config.hotwords_score = 1.5
 
-        guard let recognizer = SherpaOnnxCreateOnlineRecognizer(&config) else {
+        // The C strings must outlive the call: ARC may otherwise free `strings` after its last use above.
+        let created: OpaquePointer? = withExtendedLifetime(strings) { SherpaOnnxCreateOnlineRecognizer(&config) }
+        guard let recognizer = created else {
             throw .modelLoadFailed("\(label): sherpa-onnx rejected the model (see the console log)")
         }
         guard let stream = SherpaOnnxCreateOnlineStream(recognizer) else {

@@ -251,6 +251,11 @@ public actor SessionEngine {
                 asrKind = nil
                 await Task.detached { current.release() }.value
             }
+            // Nothing to load: say so without a round trip to the factory.
+            if wantKind == .sherpa, !packs.isAvailable(want) {
+                journal.info("No speech pack for \(want.code): voice following is off")
+                return .packMissing(want)
+            }
             do {
                 let started = clock()
                 let engine = try await engines.makeEngine(language: want, kind: wantKind, hotwords: wantHotwords)

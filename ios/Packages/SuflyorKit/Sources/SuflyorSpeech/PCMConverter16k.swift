@@ -38,6 +38,8 @@ public final class PCMConverter16k: @unchecked Sendable {
            inputFormat.sampleRate == Double(Self.sampleRate) {
             converter = nil // already in the target format
         } else {
+            // VERIFY: AVAudioConverter downmixes N channels to mono by itself (stereo/USB inputs); if the init
+            // returns nil for them, average the channels by hand before converting.
             guard let c = AVAudioConverter(from: inputFormat, to: out) else {
                 throw CaptureError.formatUnsupported(sampleRate: Int(inputFormat.sampleRate))
             }

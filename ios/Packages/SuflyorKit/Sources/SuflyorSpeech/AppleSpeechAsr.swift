@@ -184,6 +184,7 @@ public final class AppleSpeechAsr: AsrEngine, @unchecked Sendable {
         inputContinuation = continuation
         let words = biasWords
 
+        // VERIFY: SpeechTranscriber and SpeechAnalyzer are Sendable, so the two tasks below may capture them.
         resultsTask = Task { [weak self] in
             do {
                 // VERIFY: `transcriber.results` is an AsyncSequence of results with `text` (AttributedString) and `isFinal`.
