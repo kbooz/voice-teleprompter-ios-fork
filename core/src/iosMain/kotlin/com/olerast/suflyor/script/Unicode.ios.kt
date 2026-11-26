@@ -6,8 +6,8 @@ import platform.Foundation.create
 import platform.Foundation.decomposedStringWithCanonicalMapping
 import platform.Foundation.precomposedStringWithCanonicalMapping
 
-// VERIFY: compiled with Kotlin/Native on Linux (klib only, not linked or run). The first Mac run of the common tests
-// (iosSimulatorArm64Test) must confirm that NFC/NFD behave like java.text.Normalizer (the normalizers use both).
+// Checked on iosSimulatorArm64 (PortabilityShimTest): Foundation NFC/NFD match java.text.Normalizer for the cases the
+// normalizers use (accents, Hangul syllables <-> jamo).
 @OptIn(BetaInteropApi::class)
 actual fun nfc(text: CharSequence): String = NSString.create(string = text.toString()).precomposedStringWithCanonicalMapping
 
