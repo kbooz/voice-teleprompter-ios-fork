@@ -27,6 +27,9 @@ final class LibraryStore {
     /// Hands every new layout of the current script to the session.
     @ObservationIgnored var onPrepared: (@MainActor (PreparedScript) -> Void)?
 
+    /// Keeps the store alive: a `ModelContext` holds its container only weakly, so without this reference the
+    /// container is freed once `AppEnvironment.init` returns and the next fetch traps inside SwiftData.
+    @ObservationIgnored private let container: ModelContainer
     @ObservationIgnored private let context: ModelContext
     @ObservationIgnored private let core: any ScriptCoreProviding
     @ObservationIgnored private let settingsStore: SettingsStore
@@ -39,6 +42,7 @@ final class LibraryStore {
         settings: SettingsStore,
         defaults: UserDefaults = .standard
     ) {
+        self.container = container
         self.context = container.mainContext
         self.core = core
         self.settingsStore = settings
