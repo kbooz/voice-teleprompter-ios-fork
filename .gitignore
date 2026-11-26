@@ -36,3 +36,7 @@ keystore.properties
 
 # Python bytecode from tools/
 __pycache__/
+
+# iOS: sherpa-onnx / ONNX Runtime xcframeworks fetched by ios/scripts/fetch-sherpa-onnx.sh (SHA-256 pinned)
+ios/Packages/SuflyorKit/Vendor/*.xcframework
+ios/Packages/SuflyorKit/Vendor/.sherpa-onnx-installed
