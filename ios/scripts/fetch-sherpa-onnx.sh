@@ -18,8 +18,6 @@ SHERPA_SHA256="6b8e769cb153343270fdccbe92e3b3db0d1c421d67fa0989ab01fdf5b2fcf2de"
 # The ONNX Runtime that sherpa-onnx v1.13.8 builds against (SHERPA_ONNX_ONNXRUNTIME_VERSION in its build-ios.sh).
 ORT_VERSION="1.28.2"
 ORT_URL="https://github.com/csukuangfj/onnxruntime-libs/releases/download/v${ORT_VERSION}/onnxruntime-ios-static-xcframework-${ORT_VERSION}.xcframework.zip"
-# Empty on purpose: GitHub release downloads were blocked where this script was written, so the hash could not be
-# learned. Run --print-sha on a Mac and paste the value here. Until then the script refuses to install.
 ORT_SHA256="2c2299acbb461d26d4bac4bc85985d40e7c7177ed6072703ae0846d88b0b4599"
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
