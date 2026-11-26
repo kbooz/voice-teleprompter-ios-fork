@@ -50,6 +50,18 @@ For the lite APK, the Russian, English and Turkish models listed under "Shipped 
 
 Each pack contains the model files unchanged (split out of Kroko's `.data` container by `tools/speech-packs/build.py`, or taken as exported for German), a `LICENSE.md` with the attribution and a `manifest.json`.
 
+## iOS app (`ios/`)
+
+The iOS app reuses the same speech models and packs listed above, and the shared core in `core/`. What it adds:
+
+| Component | Used for | License | Source |
+|---|---|---|---|
+| sherpa-onnx v1.13.8 (iOS xcframework and C API header) | Speech recognition, the same models as on Android | Apache-2.0 | [k2-fsa/sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx/tree/v1.13.8) |
+| ONNX Runtime (static iOS libraries bundled with sherpa-onnx) | Runs the models | MIT | [csukuangfj/onnxruntime-libs](https://github.com/csukuangfj/onnxruntime-libs) |
+| ZIPFoundation | Reading and writing zip files (DOCX, ODT, backups, speech packs) | MIT | [weichsel/ZIPFoundation](https://github.com/weichsel/ZIPFoundation) |
+
+The iOS xcframeworks are not committed: `ios/scripts/fetch-sherpa-onnx.sh` fetches them and checks a pinned SHA-256.
+
 ## Not stored in this repository
 
 The speech library and model are not committed. The `fetchSpeechAssets` Gradle task downloads them from the sources above, from pinned revisions, and checks every file against a pinned SHA-256 (see `app/build.gradle.kts`).

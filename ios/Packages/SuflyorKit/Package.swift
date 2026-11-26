@@ -30,7 +30,17 @@ let package = Package(
         // WP-C. The xcframeworks are fetched by ios/scripts/fetch-sherpa-onnx.sh (pinned version + SHA-256).
         .binaryTarget(name: "sherpa_onnx", path: "Vendor/sherpa-onnx.xcframework"),
         .binaryTarget(name: "onnxruntime", path: "Vendor/onnxruntime.xcframework"),
-        .target(name: "CSherpaOnnx", dependencies: ["sherpa_onnx", "onnxruntime"]),
+        .target(
+            name: "CSherpaOnnx",
+            dependencies: ["sherpa_onnx", "onnxruntime"],
+            // The static libraries need these, as in the official sherpa-onnx / onnxruntime-libs manifests.
+            linkerSettings: [
+                .linkedLibrary("c++"),
+                .linkedFramework("CoreML"),
+                .linkedFramework("Foundation"),
+                .linkedFramework("CoreFoundation"),
+            ]
+        ),
         .target(name: "SuflyorSpeech", dependencies: ["SuflyorDomain", "CSherpaOnnx", "ZIPFoundation"]),
         .target(name: "SuflyorSession", dependencies: ["SuflyorDomain", "SuflyorSpeech"]),
         .target(name: "SuflyorTestSupport", dependencies: ["SuflyorDomain"]),
@@ -45,8 +55,8 @@ let package = Package(
             dependencies: ["SuflyorDomain", "SuflyorImporters", "SuflyorTestSupport"],
             resources: [.copy("Fixtures")]
         ),
-        .testTarget(name: "SuflyorSpeechTests", dependencies: ["SuflyorSpeech", "SuflyorTestSupport"]),
-        .testTarget(name: "SuflyorSessionTests", dependencies: ["SuflyorSession", "SuflyorTestSupport"]),
+        .testTarget(name: "SuflyorSpeechTests", dependencies: ["SuflyorDomain", "SuflyorSpeech", "SuflyorTestSupport"]),
+        .testTarget(name: "SuflyorSessionTests", dependencies: ["SuflyorDomain", "SuflyorSession", "SuflyorTestSupport"]),
         .testTarget(name: "SuflyorPrompterTests", dependencies: ["SuflyorPrompter", "SuflyorTestSupport"]),
     ],
     swiftLanguageModes: [.v6]

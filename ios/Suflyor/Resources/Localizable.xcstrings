@@ -4580,6 +4580,93 @@
         }
       }
     },
+    "ios_speech_error_audio_session" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't start the audio session: %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível iniciar a sessão de áudio: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось запустить аудиосессию: %@"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ses oturumu başlatılamadı: %@"
+          }
+        }
+      }
+    },
+    "ios_speech_error_interrupted" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Another app or a call took the microphone. The text moves on the timer."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Outro app ou uma chamada pegou o microfone. O texto segue pelo cronômetro."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Микрофон занят другим приложением или звонком. Текст движется по таймеру."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mikrofonu başka bir uygulama ya da bir arama aldı. Metin zamanlayıcıyla ilerliyor."
+          }
+        }
+      }
+    },
+    "ios_speech_error_permission" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microphone access is off. Allow it for Suflyor in Settings."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O acesso ao microfone está desativado. Permita para o Suflyor em Ajustes."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доступ к микрофону выключен. Разрешите его для Suflyor в Настройках."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mikrofon erişimi kapalı. Ayarlar'dan Suflyor için izin verin."
+          }
+        }
+      }
+    },
     "journal_cd_clear" : {
       "extractionState" : "manual",
       "localizations" : {
