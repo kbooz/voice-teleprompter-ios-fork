@@ -4,6 +4,7 @@ import SuflyorDomain
 
 /// Any `AVAudioPCMBuffer` (the input node's tap, or buffers made from a `CMSampleBuffer`) to 16 kHz mono Float32,
 /// the format both recognizers expect. Keeps the resampler's state between calls, so a stream converts without clicks.
+// @unchecked Sendable: converter use is serialized by `lock`; the formats are immutable.
 public final class PCMConverter16k: @unchecked Sendable {
     public static let sampleRate = 16_000
 
@@ -14,6 +15,7 @@ public final class PCMConverter16k: @unchecked Sendable {
     private let lock = NSLock()
 
     /// Carries the buffer into the converter's input block, which is not allowed to capture mutable state.
+    // @unchecked Sendable: used by one synchronous convert call, never shared across threads.
     private final class InputBox: @unchecked Sendable {
         let buffer: AVAudioPCMBuffer
         var consumed = false
@@ -38,8 +40,6 @@ public final class PCMConverter16k: @unchecked Sendable {
            inputFormat.sampleRate == Double(Self.sampleRate) {
             converter = nil // already in the target format
         } else {
-            // VERIFY: AVAudioConverter downmixes N channels to mono by itself (stereo/USB inputs); if the init
-            // returns nil for them, average the channels by hand before converting.
             guard let c = AVAudioConverter(from: inputFormat, to: out) else {
                 throw CaptureError.formatUnsupported(sampleRate: Int(inputFormat.sampleRate))
             }

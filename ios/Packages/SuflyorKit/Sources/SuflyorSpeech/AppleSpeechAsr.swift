@@ -11,6 +11,7 @@ import SuflyorDomain
 ///
 /// Nothing is downloaded here: a language whose assets are not installed fails with `.modelLoadFailed`; `installAssets`
 /// (the system's own downloader, used from a settings screen) installs them.
+// @unchecked Sendable: all mutable state is guarded by `lock`.
 public final class AppleSpeechAsr: AsrEngine, @unchecked Sendable {
     public let engineDescription: String
     public let language: SpeechLanguage
@@ -36,6 +37,7 @@ public final class AppleSpeechAsr: AsrEngine, @unchecked Sendable {
     private var converterSource: AVAudioFormat?
 
     /// Carries one buffer into the converter's input block.
+    // @unchecked Sendable: used by one synchronous convert call, never shared across threads.
     private final class InputBox: @unchecked Sendable {
         let buffer: AVAudioPCMBuffer
         var consumed = false
@@ -61,9 +63,7 @@ public final class AppleSpeechAsr: AsrEngine, @unchecked Sendable {
     /// The locale Apple would use for `language`, or nil when its transcriber doesn't support it.
     public static func supportedLocale(for language: SpeechLanguage) async -> Locale? {
         let wanted = Locale(identifier: appleIdentifier(for: language))
-        // VERIFY: `SpeechTranscriber.supportedLocale(equivalentTo:)` (async, returns Locale?) on the iOS 26 SDK.
         if let match = await SpeechTranscriber.supportedLocale(equivalentTo: wanted) { return match }
-        // VERIFY: `SpeechTranscriber.supportedLocales` is an async static property returning [Locale].
         let all = await SpeechTranscriber.supportedLocales
         return all.first { $0.language.languageCode == wanted.language.languageCode }
     }
@@ -71,7 +71,6 @@ public final class AppleSpeechAsr: AsrEngine, @unchecked Sendable {
     /// Supported by the transcriber and its assets are installed, so a session can start right away.
     public static func isReady(for language: SpeechLanguage) async -> Bool {
         guard let locale = await supportedLocale(for: language) else { return false }
-        // VERIFY: `SpeechTranscriber.installedLocales` is an async static property returning [Locale].
         let installed = await SpeechTranscriber.installedLocales
         return installed.contains { $0.identifier(.bcp47) == locale.identifier(.bcp47) }
     }
@@ -80,7 +79,6 @@ public final class AppleSpeechAsr: AsrEngine, @unchecked Sendable {
     public static func installAssets(for language: SpeechLanguage) async throws {
         guard let locale = await supportedLocale(for: language) else { throw AsrLoadError.unsupportedLanguage(language) }
         let transcriber = makeTranscriber(locale: locale)
-        // VERIFY: `AssetInventory.assetInstallationRequest(supporting:)` and `downloadAndInstall()`.
         if let request = try await AssetInventory.assetInstallationRequest(supporting: [transcriber]) {
             try await request.downloadAndInstall()
         }
@@ -119,7 +117,6 @@ public final class AppleSpeechAsr: AsrEngine, @unchecked Sendable {
             throw .modelLoadFailed("Apple speech assets for \(locale.identifier(.bcp47)) are not installed")
         }
         let probe = makeTranscriber(locale: locale)
-        // VERIFY: `SpeechAnalyzer.bestAvailableAudioFormat(compatibleWith:)` is async and returns AVAudioFormat?.
         guard let format = await SpeechAnalyzer.bestAvailableAudioFormat(compatibleWith: [probe]) else {
             throw .unsupportedLanguage(language)
         }
@@ -134,7 +131,6 @@ public final class AppleSpeechAsr: AsrEngine, @unchecked Sendable {
         lock.withLock { () -> AsrUpdate? in
             guard !released, !samples.isEmpty else { return nil }
             if let buffer = analyzerBuffer(from: samples, sampleRate: sampleRate) {
-                // VERIFY: `AnalyzerInput(buffer:)` and `yield` taking a non-Sendable payload (`sending`) under Swift 6.
                 inputContinuation?.yield(AnalyzerInput(buffer: buffer))
                 fedSinceStart = true
             }
@@ -184,10 +180,8 @@ public final class AppleSpeechAsr: AsrEngine, @unchecked Sendable {
         inputContinuation = continuation
         let words = biasWords
 
-        // VERIFY: SpeechTranscriber and SpeechAnalyzer are Sendable, so the two tasks below may capture them.
         resultsTask = Task { [weak self] in
             do {
-                // VERIFY: `transcriber.results` is an AsyncSequence of results with `text` (AttributedString) and `isFinal`.
                 for try await result in transcriber.results {
                     let text = String(result.text.characters)
                     self?.receive(text: text, isFinal: result.isFinal, generation: myGeneration)
@@ -199,7 +193,7 @@ public final class AppleSpeechAsr: AsrEngine, @unchecked Sendable {
         startTask = Task { [weak self] in
             do {
                 if !words.isEmpty { try await Self.setContext(words, on: newAnalyzer) }
-                // VERIFY: `start(inputSequence:)` returns once the analysis runs; it keeps consuming `stream`.
+                // VERIFY(device): start(inputSequence:) keeps consuming `stream` after it returns; needs a real recording to confirm.
                 try await newAnalyzer.start(inputSequence: stream)
             } catch {
                 Journal.shared.error("Apple speech analyzer didn't start", error)
@@ -218,7 +212,6 @@ public final class AppleSpeechAsr: AsrEngine, @unchecked Sendable {
         startTask = nil
         if let old = analyzer {
             analyzer = nil
-            // VERIFY: `cancelAndFinishNow()` is async on SpeechAnalyzer.
             Task { await old.cancelAndFinishNow() }
         }
     }
@@ -230,7 +223,7 @@ public final class AppleSpeechAsr: AsrEngine, @unchecked Sendable {
     }
 
     private static func setContext(_ words: [String], on analyzer: SpeechAnalyzer) async throws {
-        // VERIFY: `AnalysisContext`, its `contextualStrings[.general]` and `SpeechAnalyzer.setContext(_:)`.
+        // VERIFY(device): contextual strings improve recognition of script words; compare with and without on a device.
         let context = AnalysisContext()
         context.contextualStrings[.general] = words
         try await analyzer.setContext(context)

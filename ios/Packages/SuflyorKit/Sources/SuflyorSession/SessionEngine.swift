@@ -87,7 +87,7 @@ public actor SessionEngine {
 
     // MARK: - Init
 
-    public convenience init(core: any ScriptCoreProviding, engines: any AsrEngineFactory, packs: any SpeechPackManaging, settings: PrompterSettings) {
+    public init(core: any ScriptCoreProviding, engines: any AsrEngineFactory, packs: any SpeechPackManaging, settings: PrompterSettings) {
         self.init(
             core: core,
             engines: engines,
@@ -343,7 +343,7 @@ public actor SessionEngine {
             do {
                 stream = try await source.start()
             } catch {
-                let failure = (error as? CaptureError) ?? .startFailed(error.localizedDescription)
+                let failure = error // typed throws: already a CaptureError
                 guard token == sessionToken else { return }
                 journal.error("\(failure)")
                 audio = nil

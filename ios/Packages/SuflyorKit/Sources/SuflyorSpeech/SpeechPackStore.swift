@@ -18,6 +18,7 @@ struct SpeechModelLocation: Sendable {
 ///
 /// Installed packs live in `<root>/<code>/` with the `manifest.json` of the zip; `root` defaults to
 /// Application Support/speech. Bundled models are the app bundle's `asr-<code>/` folders.
+// @unchecked Sendable: stored properties are immutable; mutations of the pack folders are serialized by `writeLock`.
 public final class SpeechPackStore: SpeechPackManaging, @unchecked Sendable {
     public let catalog: [SpeechPackInfo]
 
@@ -244,7 +245,6 @@ public final class SpeechPackStore: SpeechPackManaging, @unchecked Sendable {
     }
 
     private static func unzip(_ zip: URL, into directory: URL) throws {
-        // VERIFY: ZIPFoundation 0.9.19 API: throwing Archive(url:accessMode:), Sequence of Entry, extract(_:to:).
         let archive = try Archive(url: zip, accessMode: .read)
         var sawManifest = false
         for entry in archive {

@@ -8,8 +8,10 @@ import SuflyorDomain
 /// camera app that records, the iOS counterpart of Android's "no CAMCORDER / privacy-sensitive capture" rule), Bluetooth
 /// HFP input and the loudspeaker as default output. Interruptions and route changes arrive as `AudioEvent`s; after an
 /// interruption ends the engine is rebuilt and the stream goes on.
+// @unchecked Sendable: mutable state is guarded by `lock` (the tap pipeline has its own lock).
 public final class MicrophoneAudioSource: AudioSource, @unchecked Sendable {
     /// Receives buffers on the tap's thread and turns them into chunks.
+    // @unchecked Sendable: mutable state is guarded by its own `lock`.
     private final class Pipeline: @unchecked Sendable {
         private let lock = NSLock()
         private var chunker = AudioChunker()
@@ -25,6 +27,7 @@ public final class MicrophoneAudioSource: AudioSource, @unchecked Sendable {
             lock.withLock { converter = new }
         }
 
+        // VERIFY(device): this runs on the tap's queue and allocates (convert + chunk arrays); check for glitches or dropped audio on a device.
         func push(_ buffer: AVAudioPCMBuffer) {
             let current = lock.withLock { converter }
             let samples = current.convert(buffer)
@@ -71,7 +74,6 @@ public final class MicrophoneAudioSource: AudioSource, @unchecked Sendable {
     private func startEngine() throws(CaptureError) -> AsyncStream<AudioEvent> {
         let session = AVAudioSession.sharedInstance()
         do {
-            // VERIFY: `.allowBluetoothHFP` (iOS 26 name of `.allowBluetooth`) as in docs/ios/contratos.md.
             try session.setCategory(
                 .playAndRecord,
                 mode: .default,
@@ -183,7 +185,6 @@ public final class MicrophoneAudioSource: AudioSource, @unchecked Sendable {
         })
 
         // Posted when the input device or its format changes: the engine stops and the tap must be reinstalled.
-        // VERIFY: the Swift name of the notification (AVAudioEngineConfigurationChange) on the iOS 26 SDK.
         tokens.append(center.addObserver(forName: .AVAudioEngineConfigurationChange, object: engine, queue: nil) {
             [weak self] _ in
             self?.handleConfigurationChange(generation: generation)

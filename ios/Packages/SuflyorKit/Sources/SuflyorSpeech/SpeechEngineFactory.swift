@@ -3,6 +3,7 @@ import SuflyorDomain
 
 /// Creates the recognizer for a language: sherpa-onnx from a bundled model or an installed pack, or Apple's engine.
 /// A model load takes a second or two, so the work never runs on the caller's actor.
+// @unchecked Sendable: the only stored property is an immutable, itself thread-safe SpeechPackStore.
 public final class SpeechEngineFactory: AsrEngineFactory, @unchecked Sendable {
     private let packs: SpeechPackStore
 
