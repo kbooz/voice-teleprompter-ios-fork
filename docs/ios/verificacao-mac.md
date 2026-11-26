@@ -1,96 +1,70 @@
-# Lista de verificação da primeira build no Mac
+# Verificação no Mac
 
-Gerada a partir dos comentários `// VERIFY:` do código (nenhum código Swift foi compilado no ambiente de desenvolvimento, que é Linux).
-Total: **57** pontos. Regere com o comando no fim deste arquivo.
+Situação em 26/11/2026, no Xcode 27.2 com o simulador iPhone 17 Pro: **tudo compila e todos os testes passam**. Dos 57 pontos `VERIFY` da primeira escrita, sobraram **20**: 17 dependem de aparelho físico, 1 depende de uma decisão sua e 2 são do CI.
 
-## Ordem sugerida
+## O que foi verificado
 
-1. `ios/scripts/fetch-sherpa-onnx.sh --print-sha`: preencher `ORT_SHA256` e confirmar `SHERPA_SHA256`.
-2. `./gradlew -p core assembleSuflyorCoreReleaseXCFramework` e `./gradlew -p core iosSimulatorArm64Test` (os testes comuns ainda não rodaram no iOS).
-3. Definir `BUNDLE_ID_PREFIX`, `APP_GROUP` e `DEVELOPMENT_TEAM` em `ios/project.yml` e em `AppConstants`.
-4. `xcodegen generate --spec ios/project.yml` e compilar o esquema `Suflyor` com Xcode 27 (modo Swift 6).
-5. `swift test` no pacote `SuflyorKit` e, depois, os pontos abaixo, módulo a módulo.
-6. Testar num iPhone real: microfone no PiP com Instagram, TikTok e Câmera gravando (decisão da seção 4.4 do plano).
+| Item | Resultado |
+|---|---|
+| `core` no JVM (`jvmTest`, **JDK 21**) | 114 testes, 0 falhas |
+| `core` no simulador (`iosSimulatorArm64Test`) | 101 testes, 0 falhas (os 13 de paridade com o Java só rodam no JVM) |
+| `SuflyorKit` (`swift test` pelo esquema `SuflyorKit-Package`) | 138 testes: Domain 15, Importers 47, Speech 23, Session 30, Prompter 23 |
+| App, Share e Controls | `BUILD SUCCEEDED`, 0 warnings; o app abre no simulador sem crash |
 
-## Pontos `VERIFY` por módulo
+## Como compilar do zero
 
-### App / CI / scripts (14)
+```bash
+ios/scripts/fetch-sherpa-onnx.sh                          # xcframeworks em Vendor/ (gitignored), verificados por SHA-256
+./gradlew -p core assembleSuflyorCoreReleaseXCFramework   # o preBuildScript do Xcode também faz isso
+mkdir -p ios/Suflyor/Models/asr-{ru,en,tr}                # build "lite": o xcodegen exige as pastas, mesmo vazias
+(cd ios && xcodegen generate --spec project.yml)
+(cd ios && xcodebuild -project Suflyor.xcodeproj -scheme Suflyor \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' CODE_SIGNING_ALLOWED=NO build)
+(cd ios/Packages/SuflyorKit && xcodebuild -scheme SuflyorKit-Package \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test)
+```
 
-- `.github/workflows/ios.yml:36` — the runner label that carries Xcode 27 (the macOS image name changes with each Xcode release).
-- `.github/workflows/ios.yml:40` — the Xcode 27 install path on the runner image, and a simulator name that exists in that Xcode.
-- `ios/Packages/SuflyorKit/Tests/SuflyorSpeechTests/ZipBuilder.swift:3` — ZIPFoundation reads these stored entries (MS-DOS "made by", no external attributes) like real packs.
-- `ios/Shared/SuflyorIntents.swift:36` — still honoured on iOS 26 (the newer `supportedModes` may replace it).
-- `ios/Shared/SuflyorIntents.swift:53` — see StartRecordingIntent.
-- `ios/Suflyor/AppEnvironment+Import.swift:46` — install(from:) answers .notAPack quickly for a backup zip and never leaves files behind.
-- `ios/Suflyor/AppEnvironment+Session.swift:59` — OverlayTargetLauncher.open(_:) / hint(for:target:) signatures as announced by WP-D.
-- `ios/Suflyor/Core/KMPScriptCore.swift:10` — the Swift names of the Kotlin export (SuflyorCore.shared, labels, Int32 types) match the generated header.
-- `ios/Suflyor/Core/KMPScriptCore.swift:11` — if `SuflyorCore.shared` resolves to the module, add `typealias KCore = SuflyorCore.SuflyorCore`.
-- `ios/Suflyor/Data/SettingsStore.swift:52` — `WritableKeyPath & Sendable` accepts key path literals (`\.fontSize`) at every call site.
-- `ios/Suflyor/Intents/SuflyorShortcuts.swift:6` — phrases are English only; localize them with an AppShortcuts.xcstrings if wanted.
-- `ios/Suflyor/Screens/LibraryView.swift:177` — PasteButton(payloadType:onPaste:) and the icon-only label style.
-- `ios/Suflyor/Screens/LibraryView.swift:291` — fileExporter accepts an optional document and presents once `file` is set.
-- `ios/SuflyorControls/SuflyorControls.swift:20` — ControlWidgetButton(action:label:) builds with this closure on the iOS 26 SDK.
+Armadilhas:
+- **JDK 21** para os testes do `core`. Os testes de paridade comparam tabelas Unicode com o JDK: com o JDK 17 (Unicode 13) falham 2, e com o JDK 25 (Unicode 16) falha 1. O código está certo; o que muda é a versão do Unicode.
+- No Kotlin/Native, uma classe de regex não casa code points suplementares. Para Han isso não muda o resultado, e o `PortabilityShimTest` prova isso. A única diferença é uma letra suplementar (como 𝐀 matemático) no meio de uma palavra latina, que no iOS divide a palavra. Detalhes em `CharNorm.kt`.
 
-### SuflyorCamera (11)
+## Pendências do usuário
 
-- `ios/Packages/SuflyorKit/Sources/SuflyorCamera/CameraRecorder.swift:159` — `.allowBluetoothHFP` is the iOS 26 name (contratos 3.2 uses it too).
-- `ios/Packages/SuflyorKit/Sources/SuflyorCamera/CameraRecorder.swift:205` — the data output mirrors front-camera frames by default; turning that off gives the true picture.
-- `ios/Packages/SuflyorKit/Sources/SuflyorCamera/CameraRecorder.swift:232` — front camera formats at 1080p that reach 60 fps; changing the format drops the preset.
-- `ios/Packages/SuflyorKit/Sources/SuflyorCamera/CameraRecorder.swift:264` — RotationCoordinator(device:previewLayer:) and its KVO-observable angle properties (iOS 17+).
-- `ios/Packages/SuflyorKit/Sources/SuflyorCamera/CameraRecorder.swift:317` — angle to transform mapping for the front camera (unmirrored buffers): rotation by the same angle.
-- `ios/Packages/SuflyorKit/Sources/SuflyorCamera/CameraRecorder.swift:320` — the recommended audio settings come back as [AnyHashable: Any]; AAC at the microphone's rate.
-- `ios/Packages/SuflyorKit/Sources/SuflyorCamera/CameraRecorder.swift:86` — the reason key is `AVCaptureSessionInterruptionReasonKey`; logged as a raw number for the journal.
-- `ios/Packages/SuflyorKit/Sources/SuflyorCamera/CameraScreen.swift:346` — FileRepresentation with SentTransferredFile is the documented way to share a file URL.
-- `ios/Packages/SuflyorKit/Sources/SuflyorCamera/CameraScreen.swift:369` — `effectiveGeometry.interfaceOrientation` (iOS 16+) is the non-deprecated way to read the orientation.
-- `ios/Packages/SuflyorKit/Sources/SuflyorCamera/CameraScreen.swift:59` — the iOS 18 two-handler form of onCameraCaptureEvent: volume down, Action button, Camera Control and
-- `ios/Packages/SuflyorKit/Sources/SuflyorCamera/CaptureAudioSource.swift:93` — copies the samples out of the block buffer into the PCM buffer's audio buffer list.
+- Bundle id (`com.example.suflyor`), App Group e `DEVELOPMENT_TEAM` em `ios/project.yml` e em `AppConstants`. Trocar também o ícone provisório.
+- `ios/Suflyor/Intents/SuflyorShortcuts.swift:6`: as frases dos Atalhos estão só em inglês.
+- A licença GPL-3.0 e a App Store (seção 9 do plano).
 
-### SuflyorImporters (6)
+## Pontos para o iPhone físico (`VERIFY(device)`)
 
-- `ios/Packages/SuflyorKit/Sources/SuflyorImporters/RtfImporter.swift:17` — CFStringConvertEncodingToNSStringEncoding + String(data:encoding:) for the DOS CJK code pages.
-- `ios/Packages/SuflyorKit/Sources/SuflyorImporters/ScriptArchive.swift:133` — ZIPFoundation in-memory creation: `Archive(data:accessMode: .create)` and `archive.data`.
-- `ios/Packages/SuflyorKit/Sources/SuflyorImporters/ScriptArchive.swift:137` — `addEntry(with:type:uncompressedSize:compressionMethod:provider:)` (Int64 size in 0.9.19).
-- `ios/Packages/SuflyorKit/Sources/SuflyorImporters/XmlSupport.swift:102` — XMLParser keeps `xmlns`/`xmlns:p` in attributeDict when shouldProcessNamespaces is false.
-- `ios/Packages/SuflyorKit/Sources/SuflyorImporters/ZipReading.swift:31` — ZIPFoundation 0.9.19: `Archive(data:accessMode:)` is a throwing init (older releases: failable);
-- `ios/Packages/SuflyorKit/Sources/SuflyorImporters/ZipReading.swift:58` — `Archive.extract(_:bufferSize:skipCRC32:progress:consumer:)` with a throwing consumer.
+**Voz**
+- `SuflyorSpeech/MicrophoneAudioSource.swift:30`: o tap converte o áudio e aloca memória. Conferir se há estalo ou áudio perdido.
+- `SuflyorSpeech/AppleSpeechAsr.swift:196`: `start(inputSequence:)` continua consumindo o stream.
+- `SuflyorSpeech/AppleSpeechAsr.swift:226`: as palavras do roteiro, passadas como contexto, melhoram o reconhecimento da Apple.
 
-### SuflyorPrompter (8)
+**Modo Câmera**
+- `SuflyorCamera/CaptureAudioSource.swift:93`: cópia das amostras de áudio reais.
+- `SuflyorCamera/CameraRecorder.swift:203`: espelhamento da câmera frontal.
+- `SuflyorCamera/CameraRecorder.swift:230`: formato 1080p a 60 fps.
+- `SuflyorCamera/CameraRecorder.swift:262`: ângulos do `RotationCoordinator` em cada orientação.
+- `SuflyorCamera/CameraRecorder.swift:315`: rotação gravada no arquivo de vídeo.
+- `SuflyorCamera/CameraScreen.swift:59`: botões de hardware (volume, Botão de Ação, Controle da Câmera, AirPods).
+- `SuflyorCamera/CameraScreen.swift:368`: lado da lente em paisagem, nos dois sentidos.
 
-- `ios/Packages/SuflyorKit/Sources/SuflyorPrompter/OverlayTargetLauncher.swift:23` — "instagram://camera" opens the in-app camera; plain "instagram://app" opens the app.
-- `ios/Packages/SuflyorKit/Sources/SuflyorPrompter/OverlayTargetLauncher.swift:25` — TikTok's scheme is "snssdk1233://" (global build), "tiktok://" on some versions; neither is documented.
-- `ios/Packages/SuflyorKit/Sources/SuflyorPrompter/PiPPrompter.swift:117` — C-style creation is deprecated on newer SDKs in favour of `CMTimebase(sourceClock:)`; both exist.
-- `ios/Packages/SuflyorKit/Sources/SuflyorPrompter/PiPPrompter.swift:133` — PiP needs an active session in one of these categories. With the microphone running (.playAndRecord) this
-- `ios/Packages/SuflyorKit/Sources/SuflyorPrompter/PiPPrompter.swift:361` — `enqueue(_:)` on the layer is the long-standing API; newer SDKs prefer `sampleBufferRenderer.enqueue(_:)`.
-- `ios/Packages/SuflyorKit/Sources/SuflyorPrompter/PiPPrompter.swift:412` — if the SDK marks `AVPictureInPictureSampleBufferPlaybackDelegate` / `AVPictureInPictureControllerDelegate`
-- `ios/Packages/SuflyorKit/Sources/SuflyorPrompter/PiPPrompter.swift:432` — a finite range keeps the skip buttons in the window (an infinite one means "live", without them).
-- `ios/Packages/SuflyorKit/Sources/SuflyorPrompter/PiPPrompter.swift:452` — the `@Sendable` on the completion handler follows the iOS 26 SDK; drop it if the protocol has none.
+**PiP e outros apps** (o teste decisivo da seção 4.4 do plano)
+- `SuflyorPrompter/PiPPrompter.swift:132`: categoria da sessão de áudio com o microfone ativo. **Testar se o microfone sobrevive quando o Instagram, o TikTok ou a Câmera começam a gravar.**
+- `SuflyorPrompter/PiPPrompter.swift:428`: os botões de pular aparecem na janela do PiP.
+- `SuflyorPrompter/OverlayTargetLauncher.swift:23` e `:25`: URL schemes do Instagram e do TikTok.
 
-### SuflyorSpeech (16)
+**App**
+- `ios/Suflyor/Screens/LibraryView.swift:290`: o `fileExporter` com documento opcional.
+- `ios/Shared/SuflyorIntents.swift:36` e `:53`: `openAppWhenRun` no iOS 26.
 
-- `ios/Packages/SuflyorKit/Sources/SuflyorSpeech/AppleSpeechAsr.swift:122` — `SpeechAnalyzer.bestAvailableAudioFormat(compatibleWith:)` is async and returns AVAudioFormat?.
-- `ios/Packages/SuflyorKit/Sources/SuflyorSpeech/AppleSpeechAsr.swift:137` — `AnalyzerInput(buffer:)` and `yield` taking a non-Sendable payload (`sending`) under Swift 6.
-- `ios/Packages/SuflyorKit/Sources/SuflyorSpeech/AppleSpeechAsr.swift:187` — SpeechTranscriber and SpeechAnalyzer are Sendable, so the two tasks below may capture them.
-- `ios/Packages/SuflyorKit/Sources/SuflyorSpeech/AppleSpeechAsr.swift:190` — `transcriber.results` is an AsyncSequence of results with `text` (AttributedString) and `isFinal`.
-- `ios/Packages/SuflyorKit/Sources/SuflyorSpeech/AppleSpeechAsr.swift:202` — `start(inputSequence:)` returns once the analysis runs; it keeps consuming `stream`.
-- `ios/Packages/SuflyorKit/Sources/SuflyorSpeech/AppleSpeechAsr.swift:221` — `cancelAndFinishNow()` is async on SpeechAnalyzer.
-- `ios/Packages/SuflyorKit/Sources/SuflyorSpeech/AppleSpeechAsr.swift:233` — `AnalysisContext`, its `contextualStrings[.general]` and `SpeechAnalyzer.setContext(_:)`.
-- `ios/Packages/SuflyorKit/Sources/SuflyorSpeech/AppleSpeechAsr.swift:64` — `SpeechTranscriber.supportedLocale(equivalentTo:)` (async, returns Locale?) on the iOS 26 SDK.
-- `ios/Packages/SuflyorKit/Sources/SuflyorSpeech/AppleSpeechAsr.swift:66` — `SpeechTranscriber.supportedLocales` is an async static property returning [Locale].
-- `ios/Packages/SuflyorKit/Sources/SuflyorSpeech/AppleSpeechAsr.swift:74` — `SpeechTranscriber.installedLocales` is an async static property returning [Locale].
-- `ios/Packages/SuflyorKit/Sources/SuflyorSpeech/AppleSpeechAsr.swift:83` — `AssetInventory.assetInstallationRequest(supporting:)` and `downloadAndInstall()`.
-- `ios/Packages/SuflyorKit/Sources/SuflyorSpeech/MicrophoneAudioSource.swift:186` — the Swift name of the notification (AVAudioEngineConfigurationChange) on the iOS 26 SDK.
-- `ios/Packages/SuflyorKit/Sources/SuflyorSpeech/MicrophoneAudioSource.swift:74` — `.allowBluetoothHFP` (iOS 26 name of `.allowBluetooth`) as in docs/ios/contratos.md.
-- `ios/Packages/SuflyorKit/Sources/SuflyorSpeech/PCMConverter16k.swift:41` — AVAudioConverter downmixes N channels to mono by itself (stereo/USB inputs); if the init
-- `ios/Packages/SuflyorKit/Sources/SuflyorSpeech/SherpaAsr.swift:154` — the c-api.h types come from our CSherpaOnnx module; the xcframework's own SherpaOnnxC module declares
-- `ios/Packages/SuflyorKit/Sources/SuflyorSpeech/SpeechPackStore.swift:247` — ZIPFoundation 0.9.19 API: throwing Archive(url:accessMode:), Sequence of Entry, extract(_:to:).
+## CI (fora do escopo desta rodada)
 
-### core (Kotlin) (2)
-
-- `core/src/commonMain/kotlin/com/olerast/suflyor/script/CharNorm.kt:30` — on iosSimulatorArm64 (CjkHebrewTest) check that Kotlin/Native reads the surrogate pairs in the class as one
-- `core/src/iosMain/kotlin/com/olerast/suflyor/script/Unicode.ios.kt:9` — compiled with Kotlin/Native on Linux (klib only, not linked or run). The first Mac run of the common tests
+- `.github/workflows/ios.yml:36` e `:40`: o rótulo do runner, o caminho do Xcode 27 e o nome do simulador ainda são chutes. O CI também precisa do JDK 21 e do `mkdir` das pastas `asr-*` (ou do `fetch-speech-models.sh`).
 
 ## Regerar
 
 ```bash
-grep -rn --include='*.swift' --include='*.kt' --include='*.yml' --include='*.sh' 'VERIFY:' ios core .github tools
+grep -rn --include='*.swift' --include='*.kt' --include='*.yml' --include='*.sh' -E 'VERIFY(\((device|user)\))?:' ios core .github tools
 ```
