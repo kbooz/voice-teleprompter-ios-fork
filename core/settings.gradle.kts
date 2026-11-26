@@ -14,4 +14,9 @@ dependencyResolutionManagement {
     }
 }
 
+plugins {
+    // Lets Gradle download the JDK 21 requested for jvmTest in build.gradle.kts.
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
+
 rootProject.name = "core"
