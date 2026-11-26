@@ -1,7 +1,5 @@
 package com.olerast.suflyor.script
 
-import java.text.Normalizer
-import java.util.Locale
 
 /**
  * Word normalization and fuzzy comparison for Turkish speech. The Turkish recognizer (seda-v0.2-tiny) prints lowercase
@@ -9,10 +7,6 @@ import java.util.Locale
  * apostrophes before suffixes ("İstanbul'da") and digits. [SpeechLang] picks this, [TextNorm] or [EnglishNorm].
  */
 object TurkishNorm {
-    /** Case rules of Turkish: "İ" lowers to "i" and "I" to "ı", unlike the root locale ("I" -> "i"). */
-    @Suppress("DEPRECATION")
-    val LOCALE: Locale = Locale("tr", "TR")
-
     /**
      * One word: letters, digits and combining marks. An inner apostrophe ("İstanbul'da", "Ali’nin") stays inside the
      * word and is dropped by [normalizeWord], since the recognizer prints the name and its suffix as one word.
@@ -62,14 +56,11 @@ object TurkishNorm {
      */
     fun normalizeWord(raw: String): String {
         // NFC first: "ş" or "ğ" typed as letter + combining mark become one character, so they are not stripped below.
-        val lower = Normalizer.normalize(raw, Normalizer.Form.NFC).lowercase(LOCALE)
+        val lower = nfc(raw).lowercaseTr()
         val sb = StringBuilder(lower.length)
         for (ch in lower) {
-            val type = Character.getType(ch)
             // Combining marks left over, e.g. the dot of "i̇" from text lowercased elsewhere with the wrong rules.
-            if (type == Character.NON_SPACING_MARK.toInt() || type == Character.ENCLOSING_MARK.toInt() ||
-                type == Character.COMBINING_SPACING_MARK.toInt()
-            ) continue
+            if (ch.isAnyMark()) continue
             if (ch in APOSTROPHES) continue
             if (!ch.isLetterOrDigit()) continue
             sb.append(CIRCUMFLEX[ch] ?: ch)
@@ -174,7 +165,7 @@ object TurkishNorm {
 
     /** "Dr.", "vb.", "Prof." or an initial ("M."): the period does not end a sentence. */
     fun isAbbreviation(word: String): Boolean {
-        val core = word.trimStart { !it.isLetterOrDigit() }.trimEnd { !it.isLetterOrDigit() }.lowercase(LOCALE)
+        val core = word.trimStart { !it.isLetterOrDigit() }.trimEnd { !it.isLetterOrDigit() }.lowercaseTr()
         return core in ABBREVIATIONS || (core.length == 1 && core[0].isLetter() && core != "o")
     }
 

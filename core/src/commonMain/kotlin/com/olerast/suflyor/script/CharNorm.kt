@@ -1,8 +1,5 @@
 package com.olerast.suflyor.script
 
-import java.text.Normalizer
-import java.util.Locale
-
 /**
  * Character-by-character rules for languages whose recognizers print no spaces: Chinese (every Han character is a
  * unit) and Korean (every Hangul syllable is a unit; the Korean model joins whole sentences into one run).
@@ -15,7 +12,7 @@ import java.util.Locale
  */
 class CharNorm private constructor(
     val code: String,
-    private val script: Character.UnicodeScript,
+    private val script: UScript,
     /** Very frequent characters: they prove little about the position. */
     stop: String,
     fillers: String,
@@ -28,10 +25,14 @@ class CharNorm private constructor(
     private val stop = chars(stop)
     private val numerals = chars(numerals)
 
+    // Kotlin/Native has no \p{IsHan}/\p{IsHangul} and no && intersections, so the scripts are spelled out as ranges
+    // (the same ones as UnicodeScripts; a jvmTest compares this regex with the original Java one on every code point).
+    // VERIFY: on iosSimulatorArm64 (CjkHebrewTest) check that Kotlin/Native reads the surrogate pairs in the class as one
+    // code point and supports the lookahead; the JVM parity test cannot show it.
     override val wordRegex: Regex = Regex(
         when (script) {
-            Character.UnicodeScript.HAN -> "\\p{IsHan}|[\\p{L}\\p{N}&&[^\\p{IsHan}]]+"
-            else -> "\\p{IsHangul}|[\\p{L}\\p{N}&&[^\\p{IsHangul}]]+"
+            UScript.HAN -> unitOrRun(HAN_CLASS)
+            else -> unitOrRun(HANGUL_CLASS)
         },
     )
 
@@ -47,10 +48,10 @@ class CharNorm private constructor(
     override val history: Int get() = 28
 
     /** A Chinese word has about 1.7 characters; a Korean word (eojeol) about 3 syllables. */
-    override val unitsPerWord: Float get() = if (script == Character.UnicodeScript.HAN) 1.7f else 3f
+    override val unitsPerWord: Float get() = if (script == UScript.HAN) 1.7f else 3f
 
     override fun normalizeWord(raw: String): String {
-        val s = Normalizer.normalize(raw, Normalizer.Form.NFC).lowercase(Locale.ROOT)
+        val s = nfc(raw).lowercase()
         return s.filter { it.isLetterOrDigit() }
     }
 
@@ -62,7 +63,7 @@ class CharNorm private constructor(
         for (ch in raw) {
             if (!ch.isLetter()) continue
             letters = true
-            if (Character.UnicodeScript.of(ch.code) == script) return false
+            if (UnicodeScripts.of(ch) == script) return false
         }
         return letters
     }
@@ -82,7 +83,7 @@ class CharNorm private constructor(
         val sb = sound(b[0]) ?: return 0f
         if (sa == sb) return 0.85f
         // Korean: the same initial consonant and vowel, another final consonant ("갔"/"감").
-        if (script == Character.UnicodeScript.HANGUL && sa.length >= 2 && sb.length >= 2 && sa.take(2) == sb.take(2)) return 0.75f
+        if (script == UScript.HANGUL && sa.length >= 2 && sb.length >= 2 && sa.take(2) == sb.take(2)) return 0.75f
         return 0f
     }
 
@@ -101,28 +102,39 @@ class CharNorm private constructor(
     override fun isAbbreviation(word: String): Boolean = false
 
     companion object {
-        /** Mandarin readings without tones, loaded once from the table in the app's Java resources. */
+        /** Mandarin readings without tones, built once from the generated table (tools/zh-pinyin/build.py). */
         private val pinyin: Map<Char, String> by lazy {
             val map = HashMap<Char, String>(24000)
-            CharNorm::class.java.getResourceAsStream("zh_pinyin.txt")?.bufferedReader(Charsets.UTF_8)?.useLines { lines ->
-                for (line in lines) {
-                    if (line.startsWith("#")) continue
-                    val tab = line.indexOf('\t')
-                    if (tab <= 0) continue
-                    val reading = line.substring(0, tab)
-                    for (k in tab + 1 until line.length) map[line[k]] = reading
-                }
+            for (line in ZhPinyinData.LINES) {
+                val tab = line.indexOf('\t')
+                if (tab <= 0) continue
+                val reading = line.substring(0, tab)
+                for (k in tab + 1 until line.length) map[line[k]] = reading
             }
             map
         }
 
+        // Ranges of java.lang.Character.UnicodeScript HAN and HANGUL, see UnicodeScripts. Supplementary characters are
+        // written as surrogate pairs inside the class, which regex engines read as one code point.
+        private fun pair(codePoint: Int): String {
+            val v = codePoint - 0x10000
+            return charArrayOf((0xD800 + (v shr 10)).toChar(), (0xDC00 + (v and 0x3FF)).toChar()).concatToString()
+        }
+
+        private val HAN_CLASS = "\\u2E80-\\u2FD5\\u3005\\u3007\\u3021-\\u3029\\u3038-\\u303B\\u3400-\\u4DBF\\u4E00-\\u9FFF\\uF900-\\uFAD9" +
+            "${pair(0x16FE2)}-${pair(0x16FE3)}${pair(0x16FF0)}-${pair(0x16FF1)}${pair(0x20000)}-${pair(0x323AF)}"
+        private const val HANGUL_CLASS = "\\u1100-\\u11FF\\u302E\\u302F\\u3131-\\u318E\\u3200-\\u321E\\u3260-\\u327E\\uA960-\\uA97C\\uAC00-\\uD7FB\\uFFA0-\\uFFDC"
+
+        /** One character of the script, or a run of letters and digits that are not of it. */
+        private fun unitOrRun(scriptClass: String): String = "[$scriptClass]|(?:(?![$scriptClass])[\\p{L}\\p{N}])+"
+
         /** A Hangul syllable as its letters: initial, vowel and, if any, final consonant (Unicode decomposition). */
         private fun jamo(ch: Char): String? =
-            if (ch in '가'..'힣') Normalizer.normalize(ch.toString(), Normalizer.Form.NFD) else null
+            if (ch in '가'..'힣') nfd(ch.toString()) else null
 
         val ZH = CharNorm(
             code = "zh",
-            script = Character.UnicodeScript.HAN,
+            script = UScript.HAN,
             stop = "的了是在我有和就不人都一这个上也很到说要去你会着没看好自己那他她它们们吗呢吧啊",
             fillers = "嗯啊呃哦额唔",
             numerals = "零〇一二两三四五六七八九十百千万亿",
@@ -131,7 +143,7 @@ class CharNorm private constructor(
 
         val KO = CharNorm(
             code = "ko",
-            script = Character.UnicodeScript.HANGUL,
+            script = UScript.HANGUL,
             stop = "이가을를은는의에도와과로다고서하한해요니것수있지게기어아라면",
             fillers = "음어아으흠",
             numerals = "영공일이삼사오육칠팔구십백천만억",

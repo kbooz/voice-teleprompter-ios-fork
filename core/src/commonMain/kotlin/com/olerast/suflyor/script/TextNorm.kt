@@ -1,6 +1,5 @@
 package com.olerast.suflyor.script
 
-import java.text.Normalizer
 import kotlin.math.abs
 
 /**
@@ -30,11 +29,8 @@ object TextNorm {
 
     fun normalizeWord(raw: String): String {
         val sb = StringBuilder(raw.length)
-        for (ch in Normalizer.normalize(raw, Normalizer.Form.NFC)) {
-            val type = Character.getType(ch)
-            if (type == Character.NON_SPACING_MARK.toInt() || type == Character.ENCLOSING_MARK.toInt() ||
-                type == Character.COMBINING_SPACING_MARK.toInt()
-            ) continue
+        for (ch in nfc(raw)) {
+                        if (ch.isAnyMark()) continue
             val c = ch.lowercaseChar()
             sb.append(if (c == 'ё') 'е' else c)
         }

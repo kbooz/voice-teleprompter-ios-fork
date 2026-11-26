@@ -6,10 +6,7 @@ import com.olerast.suflyor.script.ScriptLayout
 import com.olerast.suflyor.script.SpeechLang
 import com.olerast.suflyor.script.WordNorm
 import com.olerast.suflyor.track.ScriptTracker
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.Test
 
 /** Egyptian Arabic (العامية المصرية) and Modern Standard Arabic normalization, dialectal folding, and voice tracking. */
 class EgyptianArabicTrackerTest {

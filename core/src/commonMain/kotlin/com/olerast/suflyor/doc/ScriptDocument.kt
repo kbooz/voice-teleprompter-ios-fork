@@ -1,6 +1,6 @@
 package com.olerast.suflyor.doc
 
-import java.text.Normalizer
+import com.olerast.suflyor.script.nfc
 
 /** Result of importing any file: plain paragraphs with light formatting, independent of the source format. */
 data class ScriptDocument(
@@ -38,7 +38,7 @@ class ParagraphBuilder {
     private val em = ArrayList<Boolean>()
 
     fun append(text: CharSequence, emphasized: Boolean = false) {
-        val normalized = Normalizer.normalize(text, Normalizer.Form.NFC)
+        val normalized = nfc(text)
         for (ch in normalized) {
             when {
                 ch == '\u00AD' || ch == '\u200B' || ch == '\u200C' || ch == '\u200D' ||

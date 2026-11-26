@@ -1,6 +1,7 @@
 package com.olerast.suflyor.track
 
 import com.olerast.suflyor.script.SpeechLang
+import com.olerast.suflyor.script.format1
 import com.olerast.suflyor.script.Token
 import kotlin.math.abs
 
@@ -63,7 +64,7 @@ class ScriptTracker(tokens: List<Token>, private val lang: SpeechLang = SpeechLa
             for (a in j until k) for (b in a + 1..k) {
                 val parts = words.slice(a..b)
                 val glued = parts.joinToString("")
-                if (glued.length >= 4) map.putIfAbsent(glued, parts)
+                if (glued.length >= 4 && glued !in map) map[glued] = parts
             }
             j = k + 1
         }
@@ -122,9 +123,14 @@ class ScriptTracker(tokens: List<Token>, private val lang: SpeechLang = SpeechLa
 
     /** Manual jump (tap on a word): next expected word becomes the first spoken word at or after [tokenIndex]. */
     fun jumpToToken(tokenIndex: Int) {
-        var p = spokenIdx.binarySearch(tokenIndex)
-        if (p < 0) p = -p - 1
-        reset(p)
+        // First spoken word at or after tokenIndex (spokenIdx is sorted and has no duplicates).
+        var lo = 0
+        var hi = spokenIdx.size
+        while (lo < hi) {
+            val mid = (lo + hi) ushr 1
+            if (spokenIdx[mid] < tokenIndex) lo = mid + 1 else hi = mid
+        }
+        reset(lo)
     }
 
     /** @param hypothesis normalized recognized words, oldest first (finalized history + current partial). */
@@ -166,7 +172,7 @@ class ScriptTracker(tokens: List<Token>, private val lang: SpeechLang = SpeechLa
         // A far jump: back (retake) or ahead (skipped text). Demand strong, unambiguous, repeated evidence.
         val strong = best.strong >= 3 && best.evidence >= JUMP_MIN_EVIDENCE && lead >= JUMP_MARGIN
         if (!strong) {
-            return noMove("weak jump to $target (%d words, evidence %.1f, lead %.1f)".format(best.strong, best.evidence, net(best) - rival))
+            return noMove("weak jump to $target (${best.strong} words, evidence ${best.evidence.format1()}, lead ${(net(best) - rival).format1()})")
         }
         val confirmed = pendingTarget >= 0 && target - pendingTarget in 0..2
         pendingTarget = target

@@ -7,9 +7,8 @@ import com.olerast.suflyor.script.ScriptLayout
 import com.olerast.suflyor.script.SpeechLang
 import com.olerast.suflyor.script.WordNorm
 import com.olerast.suflyor.track.ScriptTracker
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.math.roundToInt
+import kotlin.test.Test
 
 /** Chinese and Korean (followed character by character) and Hebrew (word by word, right to left). */
 class CjkHebrewTest {
@@ -103,7 +102,7 @@ class CjkHebrewTest {
     fun countsWordsNotCharacters() {
         val zh = model("大家好！今天我来告诉大家，怎样挑选第一架旅行拍摄用的无人机。", SpeechLang.ZH)
         assertTrue(zh.spokenTokens > 25)
-        assertEquals(Math.round(zh.spokenTokens / 1.7f), zh.spokenWords)
+        assertEquals((zh.spokenTokens / 1.7f).roundToInt(), zh.spokenWords)
         val ru = model("Привет всем, сегодня покажу дрон.", SpeechLang.RU)
         assertEquals(ru.spokenTokens, ru.spokenWords)
     }

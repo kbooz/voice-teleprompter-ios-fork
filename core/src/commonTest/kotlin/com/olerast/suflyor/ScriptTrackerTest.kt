@@ -5,9 +5,7 @@ import com.olerast.suflyor.doc.ScriptDocument
 import com.olerast.suflyor.script.ScriptLayout
 import com.olerast.suflyor.script.TextNorm
 import com.olerast.suflyor.track.ScriptTracker
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.Test
 
 class ScriptTrackerTest {
     private val script = """
@@ -186,7 +184,7 @@ class ScriptTrackerTest {
     fun randomSessionsStayOnTrack() {
         // 200 sessions of 6 segments each: keep reading, skip ahead, go back, or talk off script; after every
         // 8-word segment the tracker must be where the reader is.
-        val rnd = java.util.Random(42)
+        val rnd = JavaRandom(42)
         var off = 0
         var checks = 0
         val len = 8
@@ -227,7 +225,7 @@ class ScriptTrackerTest {
         // Reader is mid-line and starts a line up to two lines above or below. Count words until the tracker is there.
         val anchors = model.tokens.filter { it.spoken }.map { it.anchor }
         val lineStarts = anchors.indices.filter { anchors[it] }
-        val rnd = java.util.Random(7)
+        val rnd = JavaRandom(7)
         val needed = mutableListOf<Int>()
         repeat(300) {
             val t = ScriptTracker(model.tokens)
@@ -249,7 +247,7 @@ class ScriptTrackerTest {
         }
         val avg = needed.filter { it < 99 }.average()
         val lost = needed.count { it == 99 }
-        println("neighbouring line: %.2f words on average, not found within 6 words: %d of %d".format(avg, lost, needed.size))
+        println("neighbouring line: ${fmt(avg, 2)} words on average, not found within 6 words: $lost of ${needed.size}")
         assertTrue("average $avg", avg <= 2.6)
         assertTrue("lost $lost", lost <= needed.size / 20)
     }
@@ -330,10 +328,10 @@ class ScriptTrackerTest {
         val t = ScriptTracker(big.tokens)
         val w = big.tokens.filter { it.spoken }.map { it.norm }
         val history = mutableListOf<String>()
-        val started = System.nanoTime()
+        val started = kotlin.time.TimeSource.Monotonic.markNow()
         read(t, w.take(300), history)
-        val msPerUpdate = (System.nanoTime() - started) / 1e6 / 300
+        val msPerUpdate = started.elapsedNow().inWholeNanoseconds / 1e6 / 300
         assertEquals(300, t.position)
-        assertTrue("%.1f ms per update".format(msPerUpdate), msPerUpdate < 25.0)
+        assertTrue("${fmt(msPerUpdate, 1)} ms per update", msPerUpdate < 25.0)
     }
 }

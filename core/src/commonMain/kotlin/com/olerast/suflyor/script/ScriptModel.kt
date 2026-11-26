@@ -2,6 +2,7 @@ package com.olerast.suflyor.script
 
 import com.olerast.suflyor.doc.Paragraph
 import com.olerast.suflyor.doc.ScriptDocument
+import kotlin.math.roundToInt
 
 /** One word of the displayed script. [start]/[end] are offsets in [ScriptModel.displayText], end exclusive. */
 data class Token(
@@ -31,8 +32,8 @@ class ScriptModel(
 ) {
     val spokenTokens: Int = tokens.count { it.spoken }
 
-    /** Spoken words: tokens, or characters divided by the characters of an average word in Chinese and Korean. */
-    val spokenWords: Int = Math.round(spokenTokens / lang.unitsPerWord)
+    /** Spoken words (Float.roundToInt ties go toward +infinity, like Math.round): tokens, or characters divided by the characters of an average word in Chinese and Korean. */
+    val spokenWords: Int = (spokenTokens / lang.unitsPerWord).roundToInt()
 
     /** Reading time at a given pace, words per minute. */
     fun durationSeconds(wpm: Int): Int = if (wpm <= 0) 0 else (spokenWords * 60 + wpm - 1) / wpm

@@ -1,6 +1,5 @@
 package com.olerast.suflyor.script
 
-import java.text.Normalizer
 
 /**
  * Word normalization and fuzzy comparison for English speech. The English recognizer prints UPPER CASE words with
@@ -50,11 +49,8 @@ object EnglishNorm {
     fun normalizeWord(raw: String): String {
         val sb = StringBuilder(raw.length)
         // NFD, unlike Russian: "café" and "résumé" lose their accents and match CAFE and RESUME.
-        for (ch in Normalizer.normalize(raw, Normalizer.Form.NFD)) {
-            val type = Character.getType(ch)
-            if (type == Character.NON_SPACING_MARK.toInt() || type == Character.ENCLOSING_MARK.toInt() ||
-                type == Character.COMBINING_SPACING_MARK.toInt()
-            ) continue
+        for (ch in nfd(raw)) {
+                        if (ch.isAnyMark()) continue
             val c = ch.lowercaseChar()
             sb.append(if (c in APOSTROPHES) '\'' else c)
         }

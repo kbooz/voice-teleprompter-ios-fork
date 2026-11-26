@@ -1,7 +1,5 @@
 package com.olerast.suflyor.script
 
-import java.text.Normalizer
-import java.util.Locale
 
 /**
  * Word normalization and fuzzy comparison for the space-separated languages that come as speech packs: Portuguese,
@@ -12,7 +10,6 @@ import java.util.Locale
  */
 class WordNorm private constructor(
     val code: String,
-    val locale: Locale,
     stop: String,
     fillers: String,
     softFillers: String,
@@ -20,7 +17,7 @@ class WordNorm private constructor(
     abbreviations: String,
     conjunctions: String,
     /** The language's alphabet: a word with letters of another one can't be said by the model (weight 0). */
-    private val script: Character.UnicodeScript = Character.UnicodeScript.LATIN,
+    private val script: UScript = UScript.LATIN,
     private val charMap: Map<Char, Char> = emptyMap(),
     /** Letters that compare as another letter: Hebrew final forms ("ם" as "מ"). */
     private val foldMap: Map<Char, Char> = emptyMap(),
@@ -35,7 +32,7 @@ class WordNorm private constructor(
     override val wordRegex: Regex get() = WORD
 
     /** Written in the Latin alphabet: its function words decide between the Latin-script languages. */
-    val isLatin: Boolean get() = script == Character.UnicodeScript.LATIN
+    val isLatin: Boolean get() = script == UScript.LATIN
 
     override fun canBePrefix(partial: String): Boolean = partial !in stop
 
@@ -66,7 +63,7 @@ class WordNorm private constructor(
      * word and the recognizer's word compare char by char: "Coração," -> "coração", "Straße" -> "straße".
      */
     override fun normalizeWord(raw: String): String {
-        val lower = Normalizer.normalize(raw, Normalizer.Form.NFC).lowercase(locale)
+        val lower = nfc(raw).lowercase()
         val sb = StringBuilder(lower.length)
         for (ch in lower) {
             if (ch == '\u0640' || ch.code in 0x064B..0x065F || ch == '\u0670' || ch.code in 0x06D6..0x06ED) continue
@@ -102,7 +99,7 @@ class WordNorm private constructor(
         for (ch in raw) {
             if (!ch.isLetter()) continue
             letters = true
-            if (Character.UnicodeScript.of(ch.code) == script) return false
+            if (UnicodeScripts.of(ch) == script) return false
         }
         return letters
     }
@@ -116,10 +113,10 @@ class WordNorm private constructor(
 
     /** Without accents, ß as ss: scripts are sometimes typed without them, and the recognizer may drop or add them. */
     fun fold(word: String): String {
-        val decomposed = Normalizer.normalize(word, Normalizer.Form.NFD)
+        val decomposed = nfd(word)
         val sb = StringBuilder(decomposed.length)
         for (ch in decomposed) {
-            if (Character.getType(ch) == Character.NON_SPACING_MARK.toInt()) continue
+            if (ch.category == CharCategory.NON_SPACING_MARK) continue
             if (ch == 'ß') sb.append("ss") else sb.append(foldMap[ch] ?: ch)
         }
         return sb.toString()
@@ -211,9 +208,9 @@ class WordNorm private constructor(
 
     /** "Sr.", "Dra.", "z.B.", "M." (an initial): the period does not end a sentence. */
     override fun isAbbreviation(word: String): Boolean {
-        val core = word.trimStart { !it.isLetterOrDigit() }.trimEnd { !it.isLetterOrDigit() }.lowercase(locale)
+        val core = word.trimStart { !it.isLetterOrDigit() }.trimEnd { !it.isLetterOrDigit() }.lowercase()
         // An initial ("M.") exists only in alphabets with capitals; a Korean syllable before a period ends a sentence.
-        if (script == Character.UnicodeScript.LATIN && core.length == 1 && core[0].isLetter() && core !in stop) return true
+        if (script == UScript.LATIN && core.length == 1 && core[0].isLetter() && core !in stop) return true
         return core in abbreviations || core.replace(".", "") in abbreviations
     }
 
@@ -226,7 +223,6 @@ class WordNorm private constructor(
 
         val PT = WordNorm(
             code = "pt",
-            locale = Locale.forLanguageTag("pt-BR"),
             stop = """
                 o a os as um uma uns umas de do da dos das em no na nos nas por pelo pela pelos pelas para com sem
                 e ou mas que se não nem como mais muito já também só ao à aos às é são foi ser ter tem há está
@@ -247,7 +243,6 @@ class WordNorm private constructor(
 
         val ES = WordNorm(
             code = "es",
-            locale = Locale.forLanguageTag("es"),
             stop = """
                 el la los las un una unos unas de del al en por para con sin y o u pero que se no ni como más muy
                 ya también solo es son fue ser estar está hay ha he yo tú él ella nosotros vosotros ellos ellas usted
@@ -268,7 +263,6 @@ class WordNorm private constructor(
 
         val DE = WordNorm(
             code = "de",
-            locale = Locale.GERMAN,
             stop = """
                 der die das den dem des ein eine einen einem einer eines und oder aber doch dass wenn als wie so
                 nicht kein keine ist sind war waren sein hat haben wird werden ich du er sie es wir ihr mich dich sich
@@ -288,7 +282,6 @@ class WordNorm private constructor(
 
         val FR = WordNorm(
             code = "fr",
-            locale = Locale.FRENCH,
             stop = """
                 le la les l un une des de du d au aux à en dans par pour avec sans et ou mais que qu qui ne n pas
                 plus se s ce c cet cette ces est sont était être avoir a ont il elle ils elles je j tu nous vous on
@@ -307,7 +300,6 @@ class WordNorm private constructor(
 
         val NL = WordNorm(
             code = "nl",
-            locale = Locale.forLanguageTag("nl"),
             stop = """
                 de het een en of maar dat die dit deze van in op aan met voor door bij naar uit om over als dan
                 niet geen is zijn was waren wordt worden heeft hebben had ik je jij u hij zij ze wij we jullie mij me
@@ -326,7 +318,6 @@ class WordNorm private constructor(
 
         val SV = WordNorm(
             code = "sv",
-            locale = Locale.forLanguageTag("sv"),
             stop = """
                 och eller men att som det den de en ett i på av för med till från om är var har hade blir blev
                 inte jag du han hon vi ni dem mig dig honom henne oss er sig min din sin vår här där så också
@@ -345,7 +336,6 @@ class WordNorm private constructor(
 
         val HE = WordNorm(
             code = "he",
-            locale = Locale.forLanguageTag("he"),
             stop = """
                 של את על עם זה זו זאת לא כן גם אבל או כי אם הוא היא הם הן אני אתה את אנחנו אתם יש אין כל מה מי איך
                 למה מתי איפה כמו רק עוד כבר אז שם פה הזה הזאת האלה אותו אותה אותם לו לה להם לי לך לנו
@@ -359,14 +349,13 @@ class WordNorm private constructor(
             """,
             abbreviations = "",
             conjunctions = "ו אבל או כי אם כאשר כש אז לכן אלא ואילו",
-            script = Character.UnicodeScript.HEBREW,
+            script = UScript.HEBREW,
             foldMap = mapOf('ך' to 'כ', 'ם' to 'מ', 'ן' to 'נ', 'ף' to 'פ', 'ץ' to 'צ'),
             prefixes = "והבלמשכ",
         )
 
         val IT = WordNorm(
             code = "it",
-            locale = Locale.ITALIAN,
             stop = """
                 il lo la i gli le l un uno una un di del dello della dei degli delle d a al allo alla ai agli alle
                 da dal dalla in nel nella con su sul sulla per tra fra e o ma che chi non né come più molto già
@@ -386,7 +375,6 @@ class WordNorm private constructor(
 
         val AR = WordNorm(
             code = "ar",
-            locale = Locale.forLanguageTag("ar-EG"),
             stop = """
                 في من علي عن الي مع ده دي دول ديه دا اللي ان كان كانت كانوا يكون هو هي هما هم احنا انا انت انتي
                 انتوا انتم مش ما لا لم لن بس كده كدا عشان علشان ايه فين امتي ازاي ليه كام كم كل اي لو او و ثم
@@ -404,7 +392,7 @@ class WordNorm private constructor(
             """,
             abbreviations = "د ا م ش ص ج س كم سم مم كجم جم دك رس شمم",
             conjunctions = "و او بس لكن عشان علشان لان لما لو اذا كمان برضه برضو ف يبقي ساعتها وبعدين ولكن والا حيث بينما كما",
-            script = Character.UnicodeScript.ARABIC,
+            script = UScript.ARABIC,
             charMap = mapOf(
                 'أ' to 'ا', 'إ' to 'ا', 'آ' to 'ا', 'ٱ' to 'ا',
                 'ة' to 'ه', 'ى' to 'ي', 'ؤ' to 'و', 'ئ' to 'ي',

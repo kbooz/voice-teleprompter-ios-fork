@@ -8,10 +8,7 @@ import com.olerast.suflyor.script.TextNorm
 import com.olerast.suflyor.script.biasWords
 import com.olerast.suflyor.speech.hotwordList
 import com.olerast.suflyor.track.ScriptTracker
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.Test
 
 /**
  * Names of programs written in Cyrillic, as in a script about the author's projects: letter names through hyphens

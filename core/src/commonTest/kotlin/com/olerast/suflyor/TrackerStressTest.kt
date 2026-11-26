@@ -7,12 +7,10 @@ import com.olerast.suflyor.script.ScriptModel
 import com.olerast.suflyor.script.SpeechLang
 import com.olerast.suflyor.script.Token
 import com.olerast.suflyor.track.ScriptTracker
-import org.junit.Assert.assertTrue
-import org.junit.Test
-import java.util.Random
+import kotlin.test.Test
 
 /** Words of the recognizer's output for one spoken token (its script text is [surface]); draws one number from the random. */
-typealias Hearing = (rnd: Random, token: Token, surface: String) -> List<String>
+typealias Hearing = (rnd: JavaRandom, token: Token, surface: String) -> List<String>
 
 /**
  * Simulated reading sessions, the same for every language: the seeds and the segment logic of the Russian
@@ -35,7 +33,7 @@ class TrackerSimulation(val lang: SpeechLang, lines: List<String>, private val o
      */
     fun offTrack(hear: Hearing): Pair<Int, Int> {
         val spoken = model.tokens.filter { it.spoken }
-        val rnd = Random(42)
+        val rnd = JavaRandom(42)
         var off = 0
         var checks = 0
         val len = 8
@@ -72,7 +70,7 @@ class TrackerSimulation(val lang: SpeechLang, lines: List<String>, private val o
         val words = model.tokens.filter { it.spoken }.map { it.norm }
         val anchors = model.tokens.filter { it.spoken }.map { it.anchor }
         val lineStarts = anchors.indices.filter { anchors[it] }
-        val rnd = Random(7)
+        val rnd = JavaRandom(7)
         val needed = mutableListOf<Int>()
         repeat(300) {
             val t = ScriptTracker(model.tokens, lang)
@@ -176,7 +174,7 @@ abstract class TrackerStressTest {
     protected open val maxOffTrackPercent = 3
     protected open val maxNeighbourWords = 2.6
 
-    private val label get() = "${sim.lang} ${javaClass.simpleName}"
+    private val label get() = "${sim.lang} ${this::class.simpleName}"
 
     @Test
     fun randomSessionsStayOnTrack() {
@@ -190,7 +188,7 @@ abstract class TrackerStressTest {
         val needed = sim.neighbouringLine()
         val avg = needed.filter { it < 99 }.average()
         val lost = needed.count { it == 99 }
-        println("$label neighbouring line: %.2f words on average, not found within 6 words: %d of %d".format(avg, lost, needed.size))
+        println("$label neighbouring line: ${fmt(avg, 2)} words on average, not found within 6 words: $lost of ${needed.size}")
         assertTrue("average $avg", avg <= maxNeighbourWords)
         assertTrue("lost $lost", lost <= needed.size / 20)
     }

@@ -6,8 +6,7 @@ import com.olerast.suflyor.script.ScriptLayout
 import com.olerast.suflyor.script.ScriptModel
 import com.olerast.suflyor.script.TextNorm
 import com.olerast.suflyor.track.ScriptTracker
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import kotlin.test.Test
 import java.io.File
 
 /**
@@ -56,7 +55,7 @@ class RussianGoldenTest {
     private fun randomTrail(m: ScriptModel): String = buildString {
         append("## random sessions\n")
         val words = m.tokens.filter { it.spoken }.map { it.norm }
-        val rnd = java.util.Random(42)
+        val rnd = JavaRandom(42)
         val len = 8
         repeat(200) {
             val t = ScriptTracker(m.tokens)
@@ -101,7 +100,7 @@ class RussianGoldenTest {
         val words = m.tokens.filter { it.spoken }.map { it.norm }
         val anchors = m.tokens.filter { it.spoken }.map { it.anchor }
         val lineStarts = anchors.indices.filter { anchors[it] }
-        val rnd = java.util.Random(7)
+        val rnd = JavaRandom(7)
         repeat(300) {
             val t = ScriptTracker(m.tokens)
             val history = mutableListOf<String>()

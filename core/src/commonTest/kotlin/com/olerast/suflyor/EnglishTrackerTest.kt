@@ -10,10 +10,7 @@ import com.olerast.suflyor.script.TextNorm
 import com.olerast.suflyor.script.biasWords
 import com.olerast.suflyor.speech.hotwordList
 import com.olerast.suflyor.track.ScriptTracker
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.Test
 
 /**
  * English following. The recognizer is simulated the way the LibriSpeech model prints: UPPER CASE words with
@@ -407,11 +404,11 @@ class EnglishTrackerTest {
         val big = build(List(40) { TrackerSimulation.EN_SCRIPT }.flatten())
         val t = tracker(big)
         val history = mutableListOf<String>()
-        val started = System.nanoTime()
+        val started = kotlin.time.TimeSource.Monotonic.markNow()
         hear(t, said(big).take(300), history)
-        val msPerUpdate = (System.nanoTime() - started) / 1e6 / 300
+        val msPerUpdate = started.elapsedNow().inWholeNanoseconds / 1e6 / 300
         assertEquals(300, t.position)
-        assertTrue("%.1f ms per update".format(msPerUpdate), msPerUpdate < 25.0)
+        assertTrue("${fmt(msPerUpdate, 1)} ms per update", msPerUpdate < 25.0)
     }
 
     /** Reads the first [n] spoken words of the main script. */

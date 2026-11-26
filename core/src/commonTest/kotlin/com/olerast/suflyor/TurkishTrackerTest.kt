@@ -9,10 +9,7 @@ import com.olerast.suflyor.script.TurkishNorm
 import com.olerast.suflyor.script.biasWords
 import com.olerast.suflyor.speech.hotwordList
 import com.olerast.suflyor.track.ScriptTracker
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.Test
 
 class TurkishTrackerTest {
     private val tr = SpeechLang.TR

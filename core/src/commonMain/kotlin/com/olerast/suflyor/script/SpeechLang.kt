@@ -78,7 +78,7 @@ enum class SpeechLang(val code: String, val label: String, val rules: PackRules?
      */
     fun isForeign(raw: String): Boolean = when (this) {
         RU -> raw.any { it in 'a'..'z' || it in 'A'..'Z' }
-        EN, TR -> raw.any { Character.UnicodeScript.of(it.code) == Character.UnicodeScript.CYRILLIC }
+        EN, TR -> raw.any { UnicodeScripts.of(it) == UScript.CYRILLIC }
         else -> rules!!.isForeign(raw)
     }
 
@@ -183,13 +183,13 @@ enum class SpeechLang(val code: String, val label: String, val rules: PackRules?
                         ch == '[' -> note = true
                         ch == ']' -> { note = false; spoken.append(' ') }
                         note || !ch.isLetter() -> Unit
-                        else -> when (Character.UnicodeScript.of(ch.code)) {
-                            Character.UnicodeScript.CYRILLIC -> cyrillic++
-                            Character.UnicodeScript.HANGUL -> hangul++
-                            Character.UnicodeScript.HEBREW -> hebrew++
-                            Character.UnicodeScript.ARABIC -> arabic++
-                            Character.UnicodeScript.HAN -> han++
-                            Character.UnicodeScript.LATIN -> {
+                        else -> when (UnicodeScripts.of(ch)) {
+                            UScript.CYRILLIC -> cyrillic++
+                            UScript.HANGUL -> hangul++
+                            UScript.HEBREW -> hebrew++
+                            UScript.ARABIC -> arabic++
+                            UScript.HAN -> han++
+                            UScript.LATIN -> {
                                 latin++
                                 if (TurkishNorm.isTurkishLetter(ch)) turkishAll++
                                 if (TurkishNorm.isStrongTurkishLetter(ch)) turkishStrong++

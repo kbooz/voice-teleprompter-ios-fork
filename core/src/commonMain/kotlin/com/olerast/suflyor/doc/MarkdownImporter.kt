@@ -1,5 +1,7 @@
 package com.olerast.suflyor.doc
 
+import com.olerast.suflyor.script.isSpaceSeparator
+
 /**
  * Markdown (including Obsidian flavour) to teleprompter paragraphs. Keeps headings and **bold** / ==highlight==,
  * drops links, images, code markers, comments and ~~struck-through~~ text.
@@ -197,7 +199,7 @@ object MarkdownImporter {
     private fun stripItalic(s: String): String {
         if (s.indexOf('*') < 0 && s.indexOf('_') < 0) return s
         // Android's regex engine (ICU) counts \s as tab, line breaks, form feed and every Unicode space (NBSP too).
-        fun blank(c: Char) = c == '\t' || c == '\n' || c == '\r' || c == '\u000C' || Character.isSpaceChar(c)
+        fun blank(c: Char) = c == '\t' || c == '\n' || c == '\r' || c == '\u000C' || c.isSpaceSeparator()
         fun joins(c: Char) = c.isLetterOrDigit() || c == '*' || c == '_'
         val starClosers = ArrayList<Int>()
         val underClosers = ArrayList<Int>()
