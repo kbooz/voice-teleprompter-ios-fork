@@ -42,7 +42,7 @@ let package = Package(
         .testTarget(name: "SuflyorDomainTests", dependencies: ["SuflyorDomain"]),
         .testTarget(
             name: "SuflyorImportersTests",
-            dependencies: ["SuflyorImporters", "SuflyorTestSupport"],
+            dependencies: ["SuflyorDomain", "SuflyorImporters", "SuflyorTestSupport"],
             resources: [.copy("Fixtures")]
         ),
         .testTarget(name: "SuflyorSpeechTests", dependencies: ["SuflyorSpeech", "SuflyorTestSupport"]),

@@ -33,3 +33,6 @@ keystore.properties
 # Built apps
 *.apk
 *.aab
+
+# Python bytecode from tools/
+__pycache__/
