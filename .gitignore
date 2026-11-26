@@ -22,6 +22,9 @@ app/src/main/assets/asr-tr/*.onnx
 app/src/main/assets/asr-tr/tokens.txt
 *.part
 
+# iOS "full" build models, downloaded by ios/scripts/fetch-speech-models.sh
+ios/Suflyor/Models/
+
 # Signing keys and their passwords
 *.jks
 *.keystore
