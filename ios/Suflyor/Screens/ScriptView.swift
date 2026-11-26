@@ -245,7 +245,7 @@ private struct LanguageSheet: View {
                         title: L10n.text("script_lang_follow", followed.map(speechLanguageDisplayName) ?? ""),
                         selected: document?.speechLanguage == nil
                     ) { choose(nil) }
-                    ForEach(SpeechLanguage.allCases) { language in
+                    ForEach(SpeechLanguage.allCases, id: \.self) { language in
                         option(title: title(for: language), selected: document?.speechLanguage == language) {
                             choose(language)
                         }

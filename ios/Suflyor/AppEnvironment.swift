@@ -41,8 +41,8 @@ final class AppEnvironment {
     private(set) var toastMessage: String?
     /// Bumped when something the screens can't observe by itself changed: permissions, installed packs.
     private(set) var permissionRevision = 0
-    private(set) var packsRevision = 0
-    private(set) var installingPack = false
+    var packsRevision = 0
+    var installingPack = false
     /// True from "Start" to "Stop" of the floating window.
     var pictureInPictureRunning = false
 
@@ -189,10 +189,6 @@ final class AppEnvironment {
 
     func sceneBecameActive() async {
         refreshPermissions()
-        // Rehearsal stops with the app going to the background (below); listen again when it comes back.
-        if router.showRehearsal, session.state.mode == .idle, MicrophonePermission.isGranted {
-            session.start(mode: .rehearsal, audio: MicrophoneAudioSource())
-        }
         consumePendingRoute()
         await importInbox()
     }

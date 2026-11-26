@@ -43,6 +43,7 @@ extension AppEnvironment {
 
         if isZip {
             // The catalog's SHA-256 decides: a pack is installed, anything else falls through as a backup.
+            // VERIFY: install(from:) answers .notAPack quickly for a backup zip and never leaves files behind.
             let looksLikePack = name.hasPrefix("suflyor-speech-")
             switch await packs.install(from: url) {
             case .installed(let language):
@@ -69,8 +70,8 @@ extension AppEnvironment {
         case .failure(let error): return report(error)
         }
 
-        if isZip {
-            // A zip that is not a speech pack is a backup of the library.
+        // A zip that is not a speech pack is a backup of the library; a backup given to the importer is .unknownZip.
+        if isZip || ScriptArchive.isArchive(data) {
             let core = self.core
             let archive = await Task.detached(priority: .userInitiated) { Self.readArchive(data, core: core) }.value
             switch archive {

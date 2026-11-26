@@ -107,12 +107,6 @@
     "ru": "Добавлено в iOS-версии",
     "tr": "iOS uygulamasında eklenenler"
   },
-  "ios_app_open_camera_yourself": {
-    "en": "The floating window is on. Now open the Camera app.",
-    "pt-BR": "A janela flutuante está ativa. Agora abra o app Câmera.",
-    "ru": "Плавающее окно включено. Теперь откройте приложение «Камера».",
-    "tr": "Yüzen pencere açık. Şimdi Kamera uygulamasını açın."
-  },
   "ios_app_pack_bundled": {
     "en": "Built in",
     "pt-BR": "Incluído no app",

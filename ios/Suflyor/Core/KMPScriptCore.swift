@@ -7,6 +7,8 @@ import SuflyorDomain
 /// Kotlin strings are UTF-16, like `String.utf16` and `NSRange`, so every offset maps one to one. The work left is
 /// `Int` <-> `Int32` and dropping ranges the Kotlin side would reject (negative, empty or past the end of the text).
 struct KMPScriptCore: ScriptCoreProviding {
+    // VERIFY: the Swift names of the Kotlin export (SuflyorCore.shared, labels, Int32 types) match the generated header.
+    // VERIFY: if `SuflyorCore.shared` resolves to the module, add `typealias KCore = SuflyorCore.SuflyorCore`.
     init() {}
 
     func detectLanguage(_ paragraphs: [ScriptParagraph]) -> SpeechLanguage {

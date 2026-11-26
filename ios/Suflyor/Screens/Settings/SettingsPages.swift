@@ -203,7 +203,7 @@ struct VoicePage: View {
             Section {
                 Picker(L10n.text("settings_speech_lang_default_title"), selection: store.binding(\.speechLanguage)) {
                     Text(L10n.text("speech_lang_auto")).tag("auto")
-                    ForEach(SpeechLanguage.allCases) { language in
+                    ForEach(SpeechLanguage.allCases, id: \.self) { language in
                         Text(language.label).tag(language.code)
                     }
                 }

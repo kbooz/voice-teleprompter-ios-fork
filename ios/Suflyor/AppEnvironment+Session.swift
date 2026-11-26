@@ -11,8 +11,10 @@ extension AppEnvironment {
     // MARK: - Camera
 
     func startCamera() async {
-        guard library.prepared != nil else { return }
+        guard let prepared = library.prepared else { return }
         guard await ensureCamera() else { return }
+        // The screen follows the script the store holds: hand it over before presenting.
+        session.setScript(prepared)
         router.showCamera = true
     }
 
@@ -24,10 +26,11 @@ extension AppEnvironment {
 
     // MARK: - Rehearsal
 
+    /// The screen starts the session itself with the microphone from `audioFactory` (see RootView).
     func startRehearsal() async {
-        guard library.prepared != nil else { return }
+        guard let prepared = library.prepared else { return }
         guard await ensureMicrophone() else { return }
-        session.start(mode: .rehearsal, audio: MicrophoneAudioSource())
+        session.setScript(prepared)
         router.showRehearsal = true
     }
 
@@ -39,7 +42,8 @@ extension AppEnvironment {
     // MARK: - Picture in Picture ("Over another app")
 
     func openPictureInPictureSheet() {
-        guard PiPPrompter.isSupported, library.prepared != nil else { return }
+        guard PiPPrompter.isSupported, let prepared = library.prepared else { return }
+        session.setScript(prepared)
         router.showPictureInPicture = true
     }
 
@@ -51,7 +55,12 @@ extension AppEnvironment {
         pip.start()
         pictureInPictureRunning = true
         Journal.shared.info("Picture in Picture started, target \(settings.settings.overlayTarget.rawValue)")
-        await openTargetApp()
+        let target = settings.settings.overlayTarget
+        // VERIFY: OverlayTargetLauncher.open(_:) / hint(for:target:) signatures as announced by WP-D.
+        let outcome = await OverlayTargetLauncher.open(target)
+        if let hint = OverlayTargetLauncher.hint(for: outcome, target: target) {
+            showToast(hint)
+        }
     }
 
     func stopPictureInPicture() {
@@ -60,27 +69,6 @@ extension AppEnvironment {
         session.stop()
         pictureInPictureRunning = false
         Journal.shared.info("Picture in Picture stopped")
-    }
-
-    /// The app the floating window goes over. The URL schemes are not public API of those apps: VERIFY on a device.
-    private func openTargetApp() async {
-        let target = settings.settings.overlayTarget
-        let candidates: [String]
-        switch target {
-        case .instagram: candidates = ["instagram://camera", "instagram://app"] // VERIFY: scheme still opens the camera
-        case .tiktok: candidates = ["snssdk1233://", "tiktok://"] // VERIFY: scheme of the current TikTok
-        case .camera:
-            // The system Camera has no URL scheme: the user opens it.
-            showToast(L10n.text("ios_app_open_camera_yourself"))
-            return
-        case .none:
-            return
-        }
-        for text in candidates {
-            guard let url = URL(string: text), UIApplication.shared.canOpenURL(url) else { continue }
-            if await UIApplication.shared.open(url) { return }
-        }
-        showToast(L10n.text("main_open_app_failed", target.label))
     }
 }
 

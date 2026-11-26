@@ -1,6 +1,7 @@
 import SuflyorCamera
 import SuflyorDomain
 import SuflyorPrompter
+import SuflyorSpeech
 import SwiftUI
 
 /// Navigation, the full-screen prompter covers, deep links and the foreground work.
@@ -21,7 +22,11 @@ struct RootView: View {
             CameraScreen(store: env.session, settings: env.settings.wholeBinding, onClose: { env.closeCamera() })
         }
         .fullScreenCover(isPresented: $router.showRehearsal) {
-            RehearsalScreen(store: env.session, settings: env.settings.wholeBinding, onClose: { env.closeRehearsal() })
+            RehearsalScreen(
+                store: env.session,
+                settings: env.settings.wholeBinding,
+                audioFactory: { MicrophoneAudioSource() },
+                onClose: { env.closeRehearsal() })
         }
         .sheet(isPresented: $router.showPictureInPicture) {
             PictureInPictureSheet()
