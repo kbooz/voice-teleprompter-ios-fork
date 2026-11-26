@@ -49,6 +49,13 @@ jobs:
             app/src/main/assets/asr-en/bpe.vocab
           key: speech-assets-${{ hashFiles('app/build.gradle.kts') }}
 
+      # The shared core (tracker, normalizers, Markdown importer) is a standalone Gradle build: its tests run
+      # without the Android SDK and without the speech assets.
+      - name: Test core
+        run: |
+          chmod +x ./gradlew
+          ./gradlew --no-daemon -p core jvmTest
+
       # Lint fails on new problems only; those known when it was added are listed in app/lint-baseline.xml.
       - name: Build, test and lint
         run: |
@@ -62,5 +69,6 @@ jobs:
           name: test-reports
           path: |
             app/build/reports/tests/
+            core/build/reports/tests/
             app/build/reports/lint-results-debug.html
           retention-days: 7

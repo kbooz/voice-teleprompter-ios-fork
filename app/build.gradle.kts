@@ -120,6 +120,9 @@ kotlin {
 }
 
 dependencies {
+    // Tracker, script normalizers and Markdown importer: the Kotlin Multiplatform core/ build (also used by the iOS app).
+    implementation("com.olerast.suflyor:core:1.0")
+
     // sherpa-onnx v1.13.8 (Apache-2.0), downloaded by fetchSpeechAssets.
     implementation(files("libs/sherpa-onnx-1.13.8.aar"))
 
