@@ -509,6 +509,9 @@ class SessionEngine(private val app: App) : AudioCapture.Listener {
         }
     }
 
+    // TODO: follow the voice through core's CoreFollower (com.olerast.suflyor.core): onAsr, stepLine and moveTracker
+    // are the logic it reproduces for iOS, and its FollowerParityTest keeps the two in step. Not done yet because the
+    // Android build could not be verified when the core module was extracted.
     private fun onAsr(upd: AsrUpdate, fromEpoch: Int) {
         // A result in the old language after a script change is dropped by the epoch check below.
         val words = lang.words(upd.text)
