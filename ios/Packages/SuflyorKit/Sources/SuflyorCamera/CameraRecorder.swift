@@ -156,6 +156,7 @@ final class CameraRecorder: NSObject, @unchecked Sendable {
                 try audioSession.setCategory(
                     .playAndRecord,
                     mode: .videoRecording,
+                    // VERIFY: `.allowBluetoothHFP` is the iOS 26 name (contratos 3.2 uses it too).
                     options: [.mixWithOthers, .allowBluetoothHFP, .defaultToSpeaker]
                 )
                 try audioSession.setActive(true)
@@ -201,6 +202,7 @@ final class CameraRecorder: NSObject, @unchecked Sendable {
             session.addOutput(videoOutput)
             session.addOutput(audioOutput)
 
+            // VERIFY: the data output mirrors front-camera frames by default; turning that off gives the true picture.
             // The file shows the true picture, not the mirror the preview shows (the preview layer mirrors by itself).
             if let connection = videoOutput.connection(with: .video), connection.isVideoMirroringSupported {
                 connection.automaticallyAdjustsVideoMirroring = false
@@ -259,6 +261,7 @@ final class CameraRecorder: NSObject, @unchecked Sendable {
             rotationCoordinator == nil,
             let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front)
         else { return }
+        // VERIFY: RotationCoordinator(device:previewLayer:) and its KVO-observable angle properties (iOS 17+).
         let coordinator = AVCaptureDevice.RotationCoordinator(device: camera, previewLayer: layer)
         rotationCoordinator = coordinator
         observations = [
@@ -311,6 +314,7 @@ final class CameraRecorder: NSObject, @unchecked Sendable {
         let video = AVAssetWriterInput(mediaType: .video, outputSettings: videoSettings)
         video.expectsMediaDataInRealTime = true
         // Buffers arrive in sensor orientation; the file turns them upright with this transform.
+        // VERIFY: angle to transform mapping for the front camera (unmirrored buffers): rotation by the same angle.
         video.transform = CGAffineTransform(rotationAngle: CGFloat(angle * .pi / 180))
 
         // VERIFY: the recommended audio settings come back as [AnyHashable: Any]; AAC at the microphone's rate.
