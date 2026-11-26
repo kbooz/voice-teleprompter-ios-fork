@@ -130,11 +130,9 @@ public enum ScriptArchive {
     }
 
     static func writeRaw(_ scripts: [RawScript]) throws -> Data {
-        // VERIFY: ZIPFoundation in-memory creation: `Archive(data:accessMode: .create)` and `archive.data`.
-        let archive = try Archive(data: Data(), accessMode: .create)
+        let archive = try Archive(data: Data(), accessMode: .create, pathEncoding: nil)
 
         func add(_ name: String, _ content: Data) throws {
-            // VERIFY: `addEntry(with:type:uncompressedSize:compressionMethod:provider:)` (Int64 size in 0.9.19).
             try archive.addEntry(
                 with: name, type: .file, uncompressedSize: Int64(content.count), compressionMethod: .deflate
             ) { position, size in

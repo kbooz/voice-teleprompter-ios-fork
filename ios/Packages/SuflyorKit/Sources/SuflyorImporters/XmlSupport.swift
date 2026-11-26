@@ -69,16 +69,16 @@ enum Sax {
     private final class Driver: NSObject, XMLParserDelegate {
         let handler: XmlHandler
         var failure: ImportError?
-        /// One frame of prefix -> namespace URI per open element ("" is the default namespace).
-        private var scopes: [[String: String]] = []
+        /// Prefix -> stack of namespace URIs in scope ("" is the default namespace). A lookup is O(1) however deep the
+        /// document nests; walking a per-element scope list was quadratic on 100 000 nested levels.
+        private var bindings: [String: [String]] = [:]
+        /// Prefixes declared by each open element, so they can be popped when it ends.
+        private var declared: [[String]] = []
 
         init(handler: XmlHandler) { self.handler = handler }
 
         private func resolve(_ prefix: String) -> String {
-            for scope in scopes.reversed() {
-                if let uri = scope[prefix] { return uri }
-            }
-            return ""
+            bindings[prefix]?.last ?? ""
         }
 
         private func split(_ qualified: String) -> (prefix: String, local: String) {
@@ -99,16 +99,18 @@ enum Sax {
         ) {
             if failure != nil { return }
             // Without namespace processing, xmlns declarations arrive as ordinary attributes.
-            // VERIFY: XMLParser keeps `xmlns`/`xmlns:p` in attributeDict when shouldProcessNamespaces is false.
-            var frame: [String: String] = [:]
+            var prefixes: [String] = []
             for (key, value) in attributeDict {
                 if key == "xmlns" {
-                    frame[""] = value
+                    bindings["", default: []].append(value)
+                    prefixes.append("")
                 } else if key.hasPrefix("xmlns:") {
-                    frame[String(key.dropFirst(6))] = value
+                    let prefix = String(key.dropFirst(6))
+                    bindings[prefix, default: []].append(value)
+                    prefixes.append(prefix)
                 }
             }
-            scopes.append(frame)
+            declared.append(prefixes)
             var attrs = XmlAttributes()
             for (key, value) in attributeDict where key != "xmlns" && !key.hasPrefix("xmlns:") {
                 let (prefix, local) = split(key)
@@ -134,7 +136,7 @@ enum Sax {
             } catch {
                 fail(error, parser)
             }
-            _ = scopes.popLast()
+            for prefix in declared.popLast() ?? [] { _ = bindings[prefix]?.popLast() }
         }
 
         func parser(_ parser: XMLParser, foundCharacters string: String) {

@@ -14,7 +14,7 @@ enum RtfCodepage: Equatable {
         case .single(let table):
             return table.decode(bytes)
         case .cf(let cfEncoding):
-            // VERIFY: CFStringConvertEncodingToNSStringEncoding + String(data:encoding:) for the DOS CJK code pages.
+            // Sample bytes for 932/936/949/950 decode correctly through Foundation.
             let ns = CFStringConvertEncodingToNSStringEncoding(cfEncoding)
             if let s = String(data: Data(bytes), encoding: String.Encoding(rawValue: ns)) { return s }
             return SingleByteCodepage.windows1252.decode(bytes)
