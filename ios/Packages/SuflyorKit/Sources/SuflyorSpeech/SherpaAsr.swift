@@ -151,6 +151,8 @@ public final class SherpaAsr: AsrEngine, @unchecked Sendable {
         let decoder = try pick("decoder", in: directory)
         let joiner = try pick("joiner", in: directory)
 
+        // VERIFY: the c-api.h types come from our CSherpaOnnx module; the xcframework's own SherpaOnnxC module declares
+        // the same ones. Only CSherpaOnnx is imported here, so there should be no redefinition: check on the first build.
         // The C API copies every string while it builds the recognizer, so they can be freed right after.
         let strings = CStrings()
         var config = SherpaOnnxOnlineRecognizerConfig()

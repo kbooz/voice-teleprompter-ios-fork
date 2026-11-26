@@ -1,5 +1,6 @@
 import Foundation
 
+// VERIFY: ZIPFoundation reads these stored entries (MS-DOS "made by", no external attributes) like real packs.
 /// Writes a plain ZIP (stored entries, no compression) so the tests can make packs, including hostile ones, without
 /// depending on the library under test.
 enum ZipBuilder {
