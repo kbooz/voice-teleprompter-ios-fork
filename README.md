@@ -185,12 +185,11 @@ cd suflyor
 |---|---|
 | `app/src/main/java/.../ui` | Jetpack Compose screens: library, script, rehearsal, editor, settings, journal |
 | `.../overlay` | Floating window, accessibility service, prompter view, Quick Settings tile |
-| `.../track/ScriptTracker.kt` | Voice-following: word alignment against the script |
 | `.../speech` | Microphone capture and sherpa-onnx recognizer |
 | `.../session` | Session engine and foreground service |
-| `.../doc` | Importers: TXT, Markdown, DOCX, ODT, RTF, HTML, PDF |
-| `.../script` | Word normalization and phrase layout |
-| `app/src/test` | Unit tests for the tracker (with a random stress test) and importers |
+| `.../doc` | Importers: TXT, DOCX, ODT, RTF, HTML, PDF (Markdown lives in `core/`) |
+| `app/src/test` | Unit tests for the importers, the script archive and speech packs |
+| `core/` | Kotlin Multiplatform core, a standalone Gradle build (JVM and iOS): voice-following (`track/ScriptTracker.kt`), word normalization and phrase layout (`script/`), Markdown import, the `SuflyorCore` facade for Swift, and the tracker tests. `./gradlew -p core jvmTest` |
 
 </details>
 
