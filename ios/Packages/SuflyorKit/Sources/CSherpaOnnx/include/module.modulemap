@@ -1,0 +1,5 @@
+// Explicit module map: SwiftPM rejects the generated umbrella-header map when include/ has subdirectories.
+module CSherpaOnnx {
+    header "CSherpaOnnx.h"
+    export *
+}
