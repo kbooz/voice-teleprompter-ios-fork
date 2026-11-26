@@ -56,7 +56,6 @@ extension AppEnvironment {
         pictureInPictureRunning = true
         Journal.shared.info("Picture in Picture started, target \(settings.settings.overlayTarget.rawValue)")
         let target = settings.settings.overlayTarget
-        // VERIFY: OverlayTargetLauncher.open(_:) / hint(for:target:) signatures as announced by WP-D.
         let outcome = await OverlayTargetLauncher.open(target)
         if let hint = OverlayTargetLauncher.hint(for: outcome, target: target) {
             showToast(hint)

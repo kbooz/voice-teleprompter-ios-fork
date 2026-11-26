@@ -174,7 +174,6 @@ private struct AddScriptSheet: View {
                         Text(L10n.text("library_add_paste_hint")).font(.subheadline).foregroundStyle(.secondary)
                     }
                     Spacer()
-                    // VERIFY: PasteButton(payloadType:onPaste:) and the icon-only label style.
                     PasteButton(payloadType: String.self) { strings in
                         let text = strings.joined(separator: "\n")
                         Task { @MainActor in
@@ -288,7 +287,7 @@ private struct BackupExporter: ViewModifier {
     func body(content: Content) -> some View {
         let env = self.env
         let count = file?.count ?? 0
-        // VERIFY: fileExporter accepts an optional document and presents once `file` is set.
+        // VERIFY(device): fileExporter accepts an optional document and presents once `file` is set.
         content.fileExporter(
             isPresented: $isPresented,
             document: file,

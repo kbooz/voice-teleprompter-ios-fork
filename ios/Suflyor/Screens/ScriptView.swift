@@ -1,6 +1,7 @@
 import SuflyorDomain
 import SuflyorImporters
 import SuflyorPrompter
+import SuflyorSession
 import SwiftUI
 
 /// One script: preview, language and speed, and the ways to use it (Android: `ScriptScreen`).

@@ -43,7 +43,6 @@ extension AppEnvironment {
 
         if isZip {
             // The catalog's SHA-256 decides: a pack is installed, anything else falls through as a backup.
-            // VERIFY: install(from:) answers .notAPack quickly for a backup zip and never leaves files behind.
             let looksLikePack = name.hasPrefix("suflyor-speech-")
             switch await packs.install(from: url) {
             case .installed(let language):
@@ -246,10 +245,8 @@ extension AppEnvironment {
     ) -> Result<[ScriptArchive.Entry], ImportError> {
         do {
             return .success(try ScriptArchive.read(data, core: core))
-        } catch let error as ImportError {
-            return .failure(error)
         } catch {
-            return .failure(.unknownZip)
+            return .failure(error) // typed throws(ImportError)
         }
     }
 
@@ -261,10 +258,8 @@ extension AppEnvironment {
     ) -> Result<ImportedDocument, ImportError> {
         do {
             return .success(try importer.importFile(data: data, fileName: fileName, contentType: contentType))
-        } catch let error as ImportError {
-            return .failure(error)
         } catch {
-            return .failure(.cannotOpen)
+            return .failure(error) // typed throws(ImportError)
         }
     }
 
@@ -275,10 +270,8 @@ extension AppEnvironment {
     ) -> Result<ImportedDocument, ImportError> {
         do {
             return .success(try importer.importPastedText(text, title: title))
-        } catch let error as ImportError {
-            return .failure(error)
         } catch {
-            return .failure(.cannotOpen)
+            return .failure(error) // typed throws(ImportError)
         }
     }
 

@@ -33,7 +33,7 @@ struct StartRecordingIntent: AppIntent {
             defaultValue: "Opens Suflyor on the camera with the current script."
         )
     )
-    // VERIFY: still honoured on iOS 26 (the newer `supportedModes` may replace it).
+    // VERIFY(device): still honoured on iOS 26 (the newer `supportedModes` may replace it).
     static let openAppWhenRun = true
 
     func perform() async throws -> some IntentResult {
@@ -50,7 +50,7 @@ struct StartPictureInPictureIntent: AppIntent {
             defaultValue: "Opens Suflyor to start the floating window over Instagram, TikTok or the Camera."
         )
     )
-    // VERIFY: see StartRecordingIntent.
+    // VERIFY(device): see StartRecordingIntent.
     static let openAppWhenRun = true
 
     func perform() async throws -> some IntentResult {

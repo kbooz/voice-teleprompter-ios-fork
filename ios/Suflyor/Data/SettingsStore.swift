@@ -49,7 +49,6 @@ final class SettingsStore {
 
     /// A binding to one field. `MainActor.assumeIsolated`: SwiftUI reads and writes bindings on the main thread, but
     /// the closures may be declared `@Sendable` by the SDK.
-    // VERIFY: `WritableKeyPath & Sendable` accepts key path literals (`\.fontSize`) at every call site.
     func binding<Value: Sendable>(_ keyPath: WritableKeyPath<PrompterSettings, Value> & Sendable) -> Binding<Value> {
         Binding(
             get: { MainActor.assumeIsolated { self.settings[keyPath: keyPath] } },

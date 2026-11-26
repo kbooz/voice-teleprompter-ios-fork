@@ -17,7 +17,6 @@ struct RecordControl: ControlWidget {
 
     var body: some ControlWidgetConfiguration {
         StaticControlConfiguration(kind: Self.kind) {
-            // VERIFY: ControlWidgetButton(action:label:) builds with this closure on the iOS 26 SDK.
             ControlWidgetButton(action: StartRecordingIntent()) {
                 Label {
                     Text(IntentText.recordShort)

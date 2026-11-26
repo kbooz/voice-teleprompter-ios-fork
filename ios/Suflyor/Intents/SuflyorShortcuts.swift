@@ -3,7 +3,7 @@ import AppIntents
 /// What shows up in Shortcuts, Spotlight and the Action button settings without any setup.
 struct SuflyorShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
-        // VERIFY: phrases are English only; localize them with an AppShortcuts.xcstrings if wanted.
+        // VERIFY(user): phrases are English only; localize them with an AppShortcuts.xcstrings if wanted.
         AppShortcut(
             intent: StartRecordingIntent(),
             phrases: [

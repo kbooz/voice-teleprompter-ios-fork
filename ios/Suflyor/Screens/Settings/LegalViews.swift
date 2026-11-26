@@ -1,3 +1,4 @@
+import SuflyorDomain
 import SwiftUI
 
 /// Settings > About > Licenses: Suflyor's GPL-3.0 text and the third-party notices, bundled from the repository files.
