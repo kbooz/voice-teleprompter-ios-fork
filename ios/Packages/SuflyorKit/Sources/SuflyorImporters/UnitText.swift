@@ -48,7 +48,7 @@ func isAsciiLetter(_ u: UInt16) -> Bool { (u >= 0x41 && u <= 0x5A) || (u >= 0x61
 func asciiLower(_ u: UInt16) -> UInt16 { (u >= 0x41 && u <= 0x5A) ? u + 32 : u }
 
 /// Kotlin `String.trim()` (whitespace by `isKotlinWhitespace`).
-func kotlinTrim(_ u: some Collection<UInt16>) -> Units {
+func kotlinTrim(_ u: some BidirectionalCollection<UInt16>) -> Units {
     var s = u.startIndex
     var e = u.endIndex
     while s < e, isKotlinWhitespace(u[s]) { s = u.index(after: s) }
