@@ -1,0 +1,6 @@
+"ios_intent_record_title" = "Record with teleprompter";
+"ios_intent_record_description" = "Opens Suflyor on the camera with the current script.";
+"ios_intent_record_short" = "Record";
+"ios_intent_pip_title" = "Show the script over another app";
+"ios_intent_pip_description" = "Opens Suflyor to start the floating window over Instagram, TikTok or the Camera.";
+"ios_intent_pip_short" = "Float over an app";
